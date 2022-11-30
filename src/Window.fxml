@@ -18,12 +18,16 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.TreeView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="651.0" prefWidth="711.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="WindowController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="763.0" prefWidth="942.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="WindowController">
    <bottom>
       <ToolBar prefHeight="24.0" prefWidth="664.0" BorderPane.alignment="CENTER">
          <items>
@@ -32,70 +36,76 @@
       </ToolBar>
    </bottom>
    <center>
-      <TabPane prefHeight="549.0" prefWidth="752.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
-        <tabs>
-          <Tab text="Stdout">
-            <content>
-                  <TextArea fx:id="stdOutTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
-            </content>
-          </Tab>
-          <Tab text="Plain Results">
-               <content>
-                  <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
-                    <tabs>
-                      <Tab text="Representatives">
-                           <content>
-                              <ListView fx:id="representativesTextArea" prefHeight="200.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
-                      <Tab text="FASTA-like per cluster">
-                           <content>
-                              <ListView fx:id="flcTextArea" prefHeight="200.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
-                        <Tab text="Adjecency list">
-                           <content>
-                              <ListView fx:id="adjecencyListTextArea" prefHeight="200.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
-                    </tabs>
-                  </TabPane>
-               </content>
-          </Tab>
-            <Tab text="Results">
-               <content>
-                  <BorderPane>
-                     <top>
-                        <VBox BorderPane.alignment="CENTER">
-                           <children>
-                              <ToolBar prefHeight="40.0" prefWidth="915.0">
-                                <items>
-                                    <Label text="Min. matches" />
-                                    <Slider fx:id="minMatchesTxtField" blockIncrement="1.0" majorTickUnit="2.0" max="50.0" minorTickCount="1" prefHeight="38.0" prefWidth="510.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-                                  <Button fx:id="filterButton" mnemonicParsing="false" prefHeight="28.0" prefWidth="61.0" text="Filter" />
-                                </items>
-                              </ToolBar>
-                              <ToolBar prefHeight="40.0" prefWidth="200.0">
-                                <items>
-                                    <CheckBox fx:id="sequenceCheckBox" mnemonicParsing="false" text="Only Sequence" />
-                                    <CheckBox fx:id="headerCheckBox" mnemonicParsing="false" text="ProNames" />
-                                    <Separator orientation="VERTICAL" prefHeight="29.0" prefWidth="14.0" />
-                                    <TextField fx:id="removeTextField" prefHeight="26.0" prefWidth="306.0" promptText="Enter protein name to remove or show" />
-                                  <Button fx:id="removeButton" disable="true" mnemonicParsing="false" text="Remove" />
-                                    <Button fx:id="showButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Show" />
-                                </items>
-                              </ToolBar>
-                           </children>
-                        </VBox>
-                     </top>
-                     <center>
-                        <TreeView fx:id="resultsTextArea" prefHeight="476.0" prefWidth="405.0" />
-                     </center>
-                  </BorderPane>
-               </content>
-            </Tab>
-        </tabs>
-      </TabPane>
+      <BorderPane fx:id="resultsPane" visible="false">
+         <center>
+            <TabPane prefHeight="549.0" prefWidth="752.0" tabClosingPolicy="UNAVAILABLE">
+              <tabs>
+                <Tab text="Stdout">
+                  <content>
+                        <TextArea fx:id="stdOutTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
+                  </content>
+                </Tab>
+                <Tab text="Plain Results">
+                     <content>
+                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab text="Representatives">
+                                 <content>
+                                    <ListView fx:id="representativesTextArea" prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </Tab>
+                            <Tab text="FASTA-like per cluster">
+                                 <content>
+                                    <ListView fx:id="flcTextArea" prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </Tab>
+                              <Tab text="Adjecency list">
+                                 <content>
+                                    <ListView fx:id="adjecencyListTextArea" prefHeight="200.0" prefWidth="200.0" />
+                                 </content>
+                              </Tab>
+                          </tabs>
+                        </TabPane>
+                     </content>
+                </Tab>
+                  <Tab text="Results">
+                     <content>
+                        <BorderPane>
+                           <top>
+                              <VBox BorderPane.alignment="CENTER">
+                                 <children>
+                                    <ToolBar prefHeight="40.0" prefWidth="915.0">
+                                      <items>
+                                          <Label text="Min. matches" />
+                                          <Slider fx:id="minMatchesTxtField" blockIncrement="1.0" majorTickUnit="2.0" max="50.0" minorTickCount="1" prefHeight="38.0" prefWidth="510.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                                        <Button fx:id="filterButton" mnemonicParsing="false" prefHeight="28.0" prefWidth="61.0" text="Filter" />
+                                          <Label fx:id="clusterCountLabel" prefHeight="27.0" prefWidth="64.0" />
+                                      </items>
+                                    </ToolBar>
+                                    <ToolBar prefHeight="40.0" prefWidth="200.0">
+                                      <items>
+                                          <CheckBox fx:id="sequenceCheckBox" mnemonicParsing="false" text="Only Sequence" />
+                                          <CheckBox fx:id="headerCheckBox" mnemonicParsing="false" text="ProNames" />
+                                          <Separator orientation="VERTICAL" prefHeight="29.0" prefWidth="14.0" />
+                                          <TextField fx:id="removeTextField" prefHeight="26.0" prefWidth="306.0" promptText="Enter protein name to remove or show" />
+                                        <Button fx:id="removeButton" disable="true" mnemonicParsing="false" text="Remove" />
+                                          <Button fx:id="showButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Show" />
+                                          <Button fx:id="clearFiltersButton" disable="true" layoutX="602.0" layoutY="12.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Clear" />
+                                      </items>
+                                    </ToolBar>
+                                 </children>
+                              </VBox>
+                           </top>
+                           <center>
+                              <TreeView fx:id="resultsTextArea" prefHeight="476.0" prefWidth="405.0" />
+                           </center>
+                        </BorderPane>
+                     </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
+         </center>
+      </BorderPane>
    </center>
    <top>
       <VBox prefHeight="75.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -140,25 +150,147 @@
                 </Menu>
               </menus>
             </MenuBar>
-            <AnchorPane prefHeight="62.0" prefWidth="600.0">
+            <HBox alignment="CENTER_LEFT">
                <children>
-                  <Label layoutX="14.0" layoutY="6.0" text="Min. Sequence Identity" />
-                <Button fx:id="startButton" layoutX="596.0" layoutY="17.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="65.0" text="Start" />
-                  <Label layoutX="173.0" layoutY="6.0" text="Coverage" />
-                  <ChoiceBox fx:id="covModeChoiceBox" layoutX="344.0" layoutY="17.0" prefHeight="26.0" prefWidth="240.0" />
-                  <Slider fx:id="minSeqIdSlider" blockIncrement="0.001" layoutX="14.0" layoutY="21.0" majorTickUnit="0.1" max="1.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="0.8">
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                  </Slider>
-                  <Slider fx:id="coverageSlider" blockIncrement="0.001" layoutX="173.0" layoutY="21.0" majorTickUnit="0.1" max="1.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" value="0.8">
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                  </Slider>
+                  <Button fx:id="openButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="48.0" fitWidth="49.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/folder.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="saveButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="48.0" fitWidth="49.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/floppy-disk.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="saveClustersButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="48.0" fitWidth="49.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/big-data.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="39.0" />
+                  <Button fx:id="linclustButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="59.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@./icons/linclust_logo.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="clusterButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="55.0" fitWidth="69.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/mmseqs2_logo.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="diamondButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="52.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/diamond.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="40.0" />
+                  <Separator layoutX="514.0" layoutY="10.0" orientation="VERTICAL" prefHeight="67.0" prefWidth="300.0" visible="false" />
+                <Button fx:id="startButton" mnemonicParsing="false" prefHeight="70.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="58.0" fitWidth="77.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/play.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
                </children>
-            </AnchorPane>
+            </HBox>
          </children>
       </VBox>
    </top>
+   <left>
+      <AnchorPane fx:id="optionsPane" prefHeight="200.0" prefWidth="200.0" visible="false" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="toolLabel" alignment="CENTER" layoutX="3.0" layoutY="14.0" prefHeight="29.0" prefWidth="194.0" text="MMseqs" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="23.0" />
+               </font>
+            </Label>
+            <Label fx:id="modeLabel" alignment="CENTER" layoutX="3.0" layoutY="43.0" prefHeight="29.0" prefWidth="194.0" text="Linclust Options" textAlignment="CENTER">
+               <font>
+                  <Font name="System Bold" size="23.0" />
+               </font>
+            </Label>
+            <Label layoutX="14.0" layoutY="87.0" text="Min. Sequence Identity" />
+            <Slider fx:id="minSeqIdSlider" blockIncrement="0.01" layoutX="14.0" layoutY="102.0" majorTickUnit="0.1" max="1.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="0.8">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Slider>
+            <Label layoutX="14.0" layoutY="151.0" text="Coverage" />
+            <Slider fx:id="coverageSlider" blockIncrement="0.01" layoutX="14.0" layoutY="166.0" majorTickUnit="0.1" max="1.0" minorTickCount="2" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="0.8">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Slider>
+            <Separator layoutY="72.0" prefHeight="10.0" prefWidth="200.0" />
+            <Separator layoutX="4.0" layoutY="204.0" prefWidth="200.0" />
+            <Separator prefHeight="10.0" prefWidth="200.0" />
+            <CheckBox fx:id="showAdvancedOptionsCheckBox" layoutX="6.0" layoutY="218.0" mnemonicParsing="false" text="Show advanced Options" />
+            <AnchorPane fx:id="mmseqsAdvOptionsPane" layoutX="4.0" layoutY="244.0" prefHeight="390.0" prefWidth="200.0" visible="false">
+               <children>
+                  <ChoiceBox fx:id="covModeChoiceBox" layoutX="11.0" layoutY="23.0" prefHeight="26.0" prefWidth="164.0" />
+                  <Label layoutX="14.0" layoutY="6.0" text="Coverage Mode" />
+                  <Label layoutX="13.0" layoutY="60.0" text="Alignment Mode" />
+                  <ChoiceBox fx:id="alnModeChoiceBox" layoutX="11.0" layoutY="77.0" prefHeight="26.0" prefWidth="164.0" />
+                  <Label layoutX="13.0" layoutY="113.0" text="Alignment Output Mode" />
+                  <ChoiceBox fx:id="alnOutputModeChoiceBox" layoutX="11.0" layoutY="130.0" prefHeight="26.0" prefWidth="164.0" />
+                  <TextField fx:id="eValueTextField" layoutX="59.0" layoutY="263.0" prefHeight="26.0" prefWidth="117.0" text="1.000E-03" />
+                  <Label layoutX="10.0" layoutY="267.0" text="E-Value" />
+                  <TextField fx:id="minAlnLenTextField" layoutX="89.0" layoutY="295.0" prefHeight="26.0" prefWidth="86.0" text="0" />
+                  <Label layoutX="10.0" layoutY="300.0" text="Min. Aln-Len" />
+                  <Label layoutX="12.0" layoutY="166.0" text="Sequence Identity Mode" />
+                  <ChoiceBox fx:id="seqIdModeChoiceBox" layoutX="11.0" layoutY="182.0" prefHeight="26.0" prefWidth="164.0" />
+                  <Label layoutX="12.0" layoutY="214.0" text="Cluster Mode" />
+                  <ChoiceBox fx:id="clusterModeChoiceBox" layoutX="11.0" layoutY="230.0" prefHeight="26.0" prefWidth="164.0" />
+                  <TextField fx:id="kmerPerSeqTextField" layoutX="90.0" layoutY="327.0" prefHeight="26.0" prefWidth="86.0" text="21" />
+                  <Label layoutX="11.0" layoutY="332.0" text="kmer per Seq" />
+                  <TextField fx:id="threadsTextField" layoutX="90.0" layoutY="363.0" prefHeight="26.0" prefWidth="86.0" text="8" />
+                  <Label layoutX="11.0" layoutY="368.0" text="Threads" />
+               </children>
+            </AnchorPane>
+            <AnchorPane fx:id="advancedDiamondPane" layoutX="2.0" layoutY="236.0" prefHeight="404.0" prefWidth="200.0" visible="false">
+               <children>
+                  <CheckBox fx:id="queryCoverCheckBox" layoutX="4.0" layoutY="11.0" mnemonicParsing="false" selected="true" text="Query cover " />
+                  <CheckBox fx:id="subjectCoverCheckBox" layoutX="100.0" layoutY="11.0" mnemonicParsing="false" selected="true" text="Subject cover " />
+                  <CheckBox fx:id="eValueDCheckBox" layoutX="4.0" layoutY="48.0" mnemonicParsing="false" text="e-value" />
+                  <TextField fx:id="eValueDTextField" disable="true" layoutX="97.0" layoutY="44.0" prefHeight="26.0" prefWidth="104.0" />
+                  <CheckBox fx:id="gabOpenCheckBox" layoutX="4.0" layoutY="87.0" mnemonicParsing="false" text="Gab Open" />
+                  <TextField fx:id="gabOpenTextField" disable="true" layoutX="97.0" layoutY="83.0" prefHeight="26.0" prefWidth="104.0" />
+                  <CheckBox fx:id="gabExtendCheckBox" layoutX="4.0" layoutY="128.0" mnemonicParsing="false" text="Gab Extend" />
+                  <TextField fx:id="gabExtendTextField" disable="true" editable="false" layoutX="97.0" layoutY="124.0" prefHeight="26.0" prefWidth="104.0" />
+                  <ChoiceBox fx:id="matrixChoiceBox" disable="true" layoutX="12.0" layoutY="191.0" prefHeight="26.0" prefWidth="169.0" />
+                  <CheckBox fx:id="matrixCheckBox" layoutX="4.0" layoutY="165.0" mnemonicParsing="false" text="Matrix" />
+                  <CheckBox fx:id="threadsDCheckBox" layoutX="5.0" layoutY="236.0" mnemonicParsing="false" text="Threads" />
+                  <TextField fx:id="treadsDTextField" disable="true" editable="false" layoutX="97.0" layoutY="232.0" prefHeight="26.0" prefWidth="104.0" />
+               </children>
+            </AnchorPane>
+         </children>
+      </AnchorPane>
+   </left>
 </BorderPane>
