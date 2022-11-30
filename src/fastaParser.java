@@ -3,6 +3,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
+/**
+ * FastA file parser
+ */
 public class fastaParser extends ArrayList<fastaParser.HeaderSequence> {
 
     public void read(String fileName) throws IOException

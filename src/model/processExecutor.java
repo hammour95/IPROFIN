@@ -1,10 +1,12 @@
 package model;
 
+import javafx.concurrent.Task;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class processExecutor {
+public class processExecutor  extends Task<String> {
     ProcessBuilder processBuilder = new ProcessBuilder();
     String[] commands;
 
@@ -12,8 +14,8 @@ public class processExecutor {
         this.commands = commands;
         processBuilder.command(commands);
     }
-
-    public String run() throws IOException {
+    @Override
+    protected String call() throws IOException {
         Process process = processBuilder.start();
 
         StringBuilder output = new StringBuilder();

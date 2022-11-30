@@ -5,26 +5,37 @@ import java.util.Collections;
 
 public class mmseq {
     String path = "./src/model/mmseqs/bin/mmseqs";
-
     String mode = "easy-linclust";
-
     String tmp = "tmp";
-
-    String results = "Results/linclust";
-
+    String results = "Results/cluster";
     String[] input;
-
     float minSeqId;
-
     float coverage;
-
     int covMode;
+    int alnMode;
+    int alnOutMode;
+    int seqIdMode;
+    int clusterMode;
+    double eValue;
+    int minAlnLen;
+    int kmerPerSeq;
+    int threads;
 
-    public mmseq(String[] input, float minSeqId, float coverage, int covMode) {
+    public mmseq(String[] input, float minSeqId, float coverage, int covMode,
+                 int alnMode, int alnOutMode, int seqIdMode, int clusterMode,
+                 double eValue, int minAlnLen, int kmerPerSeq, int threads) {
         this.input = input;
         this.minSeqId = minSeqId;
         this.coverage = coverage;
         this.covMode = covMode;
+        this.alnMode = alnMode;
+        this.alnOutMode = alnOutMode;
+        this.seqIdMode = seqIdMode;
+        this.clusterMode = clusterMode;
+        this.eValue = eValue;
+        this.minAlnLen = minAlnLen;
+        this.kmerPerSeq = kmerPerSeq;
+        this.threads = threads;
     }
 
     public String[] getCommand(){
@@ -41,6 +52,23 @@ public class mmseq {
         command.add(String.valueOf(coverage));
         command.add("--cov-mode");
         command.add(String.valueOf(covMode));
+        command.add("--alignment-mode");
+        command.add(String.valueOf(alnMode));
+        command.add("--alignment-output-mode");
+        command.add(String.valueOf(alnOutMode));
+        command.add("--seq-id-mode");
+        command.add(String.valueOf(seqIdMode));
+        command.add("--cluster-mode");
+        command.add(String.valueOf(clusterMode));
+        command.add("-e");
+        command.add(String.valueOf(eValue));
+        command.add("--min-aln-len");
+        command.add(String.valueOf(minAlnLen));
+        command.add("--kmer-per-seq");
+        command.add(String.valueOf(kmerPerSeq));
+        command.add("--threads");
+        command.add(String.valueOf(threads));
+
 
         return command.toArray(new String[command.size()]);
     }
