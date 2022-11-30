@@ -1,11 +1,9 @@
-import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import jdk.jfr.ContentType;
 import model.*;
 
 import javafx.application.Platform;
@@ -13,10 +11,11 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.Map;
 
 /**
  * The window presenter
@@ -31,21 +30,94 @@ public class WindowPresenter {
     fastaParser data = new fastaParser();
     HashMap<String, fastaParser.HeaderSequence> dataMap = new HashMap<>();
 
+    String method;
+
+    ArrayList<TreeItem<String>> toShow = new ArrayList<>();
+    ArrayList<TreeItem<String>> toRemove = new ArrayList<>();
+
     public WindowPresenter(Stage stage, WindowController controller) {
 
-        controller.getCloseMenuItem().setOnAction(e-> Platform.exit());
+        new addOptions(controller);
+        new toolTips(controller);
+
+        controller.getCloseMenuItem().setOnAction(e-> {
+            clearResults();
+            Platform.exit();
+        });
 
         controller.getFullScreenMenuItem().setOnAction(e-> stage.setFullScreen(!stage.fullScreenProperty().get()));
 
         controller.getAboutMenuItem().setOnAction(e-> showAbout());
 
         controller.getSaveMenuItem().setOnAction(e-> save(stage, controller));
+        controller.getSaveButton().setOnAction(e-> save(stage, controller));
 
         controller.getSaveClustersMenuItem().setOnAction(e-> saveCluster(stage, controller));
+        controller.getSaveClustersButton().setOnAction(e-> saveCluster(stage, controller));
 
-        controller.getRemoveButton().setOnAction(e-> remove(controller));
+        controller.getRemoveButton().setOnAction(e-> {
+            remove(controller);
+            numberOfClusters(controller);
+        });
 
-        controller.getShowButton().setOnAction(e->show(controller));
+        controller.getShowButton().setOnAction(e-> {
+            show(controller);
+            numberOfClusters(controller);
+        });
+
+        controller.getClearFiltersButton().setOnAction(e-> clearFilter(controller));
+
+        controller.getLinclustButton().setOnAction(e->{
+            this.method = "linclust";
+            controller.getToolLabel().setText("MMseqs");
+            controller.getModeLabel().setText("LinClust Options");
+            controller.getMmseqsAdvOptionsPane().setVisible(false);
+            controller.getShowAdvancedOptionsCheckBox().setSelected(false);
+            controller.getAdvancedDiamondPane().setVisible(false);
+            controller.getOptionsPane().setVisible(true);
+            controller.getCoverageSlider().setDisable(false);
+
+        });
+
+        controller.getClusterButton().setOnAction(e->{
+            this.method = "cluster";
+            controller.getToolLabel().setText("MMseqs");
+            controller.getModeLabel().setText("Cluster Options");
+            controller.getMmseqsAdvOptionsPane().setVisible(false);
+            controller.getShowAdvancedOptionsCheckBox().setSelected(false);
+            controller.getAdvancedDiamondPane().setVisible(false);
+            controller.getOptionsPane().setVisible(true);
+            controller.getCoverageSlider().setDisable(false);
+
+        });
+
+        controller.getDiamondButton().setOnAction(e->{
+            this.method = "diamond";
+            controller.getToolLabel().setText("DIAMOND");
+            controller.getModeLabel().setText("BlastP Options");
+            controller.getMmseqsAdvOptionsPane().setVisible(false);
+            controller.getShowAdvancedOptionsCheckBox().setSelected(false);
+            controller.getAdvancedDiamondPane().setVisible(false);
+            controller.getOptionsPane().setVisible(true);
+        });
+
+        controller.getShowAdvancedOptionsCheckBox().setOnAction(e->{
+            if(this.method.equals("linclust") || this.method.equals("cluster")) {
+                if(controller.getShowAdvancedOptionsCheckBox().isSelected()) {
+                    controller.getMmseqsAdvOptionsPane().setVisible(true);
+                }
+                else if(!controller.getShowAdvancedOptionsCheckBox().isSelected()) {
+                    controller.getMmseqsAdvOptionsPane().setVisible(false);
+                }
+            } else if (this.method.equals("diamond")) {
+                if(controller.getShowAdvancedOptionsCheckBox().isSelected()) {
+                    controller.getAdvancedDiamondPane().setVisible(true);
+                }
+                else if(!controller.getShowAdvancedOptionsCheckBox().isSelected()) {
+                    controller.getAdvancedDiamondPane().setVisible(false);
+                }
+            }
+        });
 
         controller.getMmseqsUsageMenuItem().setOnAction(e-> {
             try {mmseqsAbout(controller);} catch (IOException ex) {throw new RuntimeException(ex);} });
@@ -57,12 +129,31 @@ public class WindowPresenter {
                 throw new RuntimeException(ex);
             }
         });
-
-        controller.getStartButton().setOnAction(e-> {
+        controller.getOpenButton().setOnAction(e-> {
             try {
-                startMMseqs(controller);
+                openFile(stage, controller);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
+            }
+        });
+
+        controller.getStartButton().setOnAction(e-> {
+            clearResults();
+            if(method != null) {
+                try {
+                    new startClustering(controller, spec, method, input);
+                    controller.getMinMatchesTxtField().setValue(spec);
+                    if(new File("Results/cluster_cluster.tsv").exists()) {
+                        summary(controller, spec);
+                        numberOfClusters(controller);
+                    }
+                    controller.getResultsPane().setVisible(true);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            else{
+                controller.getInfoLabel().setText("Please choose a method!");
             }
         });
 
@@ -74,11 +165,12 @@ public class WindowPresenter {
         });
 
         controller.getFilterButton().setOnAction(e-> {
-            File results = new File("Results/linclust_cluster.tsv");
+            File results = new File("Results/cluster_cluster.tsv");
             if(results.exists()) {
                 int filter = (int)controller.getMinMatchesTxtField().getValue();
                 try {
-                    adjacencySummery(controller, filter);
+                    summary(controller, filter);
+                    numberOfClusters(controller);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -89,18 +181,6 @@ public class WindowPresenter {
         controller.getHeaderCheckBox().setOnAction(e-> controller.getFilterButton().fire());
 
 
-        // adding the coverage mode options
-        ArrayList<String> covMods = new ArrayList<>();
-        covMods.add("coverage of query and target");
-        covMods.add("coverage of target");
-        covMods.add("coverage of query");
-        covMods.add("target seq. length has to be at least x% of query length");
-        covMods.add("query seq. length has to be at least x% of target length");
-        covMods.add("short seq. needs to be at least x% of the other seq. length");
-
-        ObservableList<String> list = FXCollections.observableArrayList(covMods);
-        controller.getCovModeChoiceBox().setItems(list);
-        controller.getCovModeChoiceBox().setValue("coverage of query and target");
     }
 
     /**
@@ -124,8 +204,10 @@ public class WindowPresenter {
         String[] path = {"./src/model/mmseqs/bin/mmseqs", "-h"};
 
         processExecutor processExecutor = new processExecutor(path);
-
-        controller.getStdOutTextArea().setText(processExecutor.run());
+        processExecutor.setOnSucceeded(e->{
+            controller.getStdOutTextArea().setText(processExecutor.getValue());
+        });
+        processExecutor.run();
     }
 
     /**
@@ -164,182 +246,73 @@ public class WindowPresenter {
         }
     }
 
-
-    /**
-     * Start the tool mmseqs2 on the line cluster mode and show the results
-     */
-    private void startMMseqs(WindowController controller) throws IOException {
-        float minSeqId = (float) controller.getMinSeqIdSlider().getValue();
-        float coverage = (float) controller.getCoverageSlider().getValue();
-
-        int covMode = 0;
-        switch (controller.getCovModeChoiceBox().getValue()) {
-            case "coverage of query and target":
-                break;
-            case "coverage of target":
-                covMode = 1;
-                break;
-            case "coverage of query":
-                covMode = 2;
-                break;
-            case "target seq. length has to be at least x% of query length":
-                covMode = 3;
-                break;
-            case "query seq. length has to be at least x% of target length":
-                covMode = 4;
-                break;
-            case "short seq. needs to be at least x% of the other seq. length":
-                covMode = 5;
-                break;
-        }
-
-        if(this.input.isEmpty()) {
-            controller.getInfoLabel().setText("please open the FastA files directory!");
-        }
-
-        else {
-            controller.getInfoLabel().setText("Running mmseq2 // Parameters: minSeqId: " + minSeqId + " coverage: " +
-                    coverage + " covMode: " + covMode);
-            // make the results folder if it not exists
-            File resultsDir = new File("Results/");
-            if (!resultsDir.exists()){
-                resultsDir.mkdirs();
-            }
-
-            // loading the command arguments
-            mmseq mmseq = new mmseq(this.input.toArray(new String[this.input.size()]), minSeqId, coverage, covMode);
-            processExecutor processExecutor = new processExecutor(mmseq.getCommand());
-
-            // running mmseqs2 and generating the result files
-            controller.getStdOutTextArea().setText(processExecutor.run());
-
-            controller.getInfoLabel().setText("Finished mmseqs2 analysis // Spec.: " + spec +
-                    " Parameters: minSeqId: " + minSeqId + " coverage: " +
-                    coverage + " covMode: " + covMode);
-
-
-
-            // Showing the result files in the plain results tab
-            var serviceRep = new readFile("Results/linclust_rep_seq.fasta");
-            serviceRep.setOnSucceeded(e-> {
-                var results = serviceRep.getValue();
-                for(String s: results.split("\n")){
-                    controller.getRepresentativesTextArea().getItems().add(s);
-                }
-            });
-
-            var serviceAdj = new readFile("Results/linclust_cluster.tsv");
-            serviceAdj.setOnSucceeded(e->{
-                var results = serviceAdj.getValue();
-                for(String s: results.split("\n")){
-                    controller.getAdjecencyListTextArea().getItems().add(s);
-                }
-            });
-
-            var serviceFlc = new readFile("Results/linclust_all_seqs.fasta");
-            serviceFlc.setOnSucceeded(e-> {
-                var results = serviceFlc.getValue();
-                for(String s: results.split("\n")){
-                    controller.getFlcTextArea().getItems().add(s);
-                }
-            });
-            Executors.newSingleThreadExecutor().submit(serviceFlc);
-            Executors.newSingleThreadExecutor().submit(serviceRep);
-            Executors.newSingleThreadExecutor().submit(serviceAdj);
-
-
-            // Showing the results
-            adjacencySummery(controller, 0);
-        }
-    }
-
-    private void adjacencySummery(WindowController controller, int filter) throws IOException {
+    private void summary(WindowController controller, int filter) throws IOException {
         controller.getRemoveButton().setDisable(false);
         controller.getShowButton().setDisable(false);
-        BufferedReader reader = new BufferedReader(new FileReader("Results/linclust_cluster.tsv"));
+        controller.getClearFiltersButton().setDisable(false);
+        BufferedReader reader = new BufferedReader(new FileReader("Results/cluster_cluster.tsv"));
 
-        ArrayList<String[]> data = new ArrayList<>();
+        Map<String, ArrayList<String>> map = new HashMap<>();
+
         String line;
 
         while((line = reader.readLine()) != null) {
             String[] parts = line.split("\t");
-            data.add(parts);
-        }
-        String tmp = null;
-        int count = 0;
-
-        TreeItem<String> root = new TreeItem<>("Summary");
-        ArrayList<String> items = new ArrayList<>();
-
-        for(String[] entry: data) {
-            if(!entry[0].equals(tmp)){
-                if(tmp == null){
-                    tmp = entry[0];
-                    count += 1;
-                    items.add(entry[1]);
-                }
-                else {
-                    if(count >= filter) {
-                        TreeItem<String> cluster;
-                        if(this.dataMap.containsKey(tmp)){
-                            cluster = new TreeItem<>(count + "\t" + this.dataMap.get(tmp).header());
-                            cluster.getChildren().add(new TreeItem<>(this.dataMap.get(tmp).sequence()));
-                        }
-                        else
-                            cluster = new TreeItem<>(count + "\t" + tmp);
-
-                        for(String s: items){
-                            TreeItem<String> child;
-                            TreeItem<String> seq;
-                            if(this.dataMap.containsKey(s)) {
-                                if(controller.getSequenceCheckBox().isSelected()) {
-                                    seq = new TreeItem<>(this.dataMap.get(s).sequence());
-                                    cluster.getChildren().add(seq);
-                                }
-                                else {
-                                    child = new TreeItem<>(this.dataMap.get(s).header());
-                                    seq = new TreeItem<>(this.dataMap.get(s).sequence());
-                                    child.getChildren().add(seq);
-                                    cluster.getChildren().add(child);
-                                }
-                            }
-                            else {
-                                child = new TreeItem<>(s);
-                                cluster.getChildren().add(child);
-                            }
-                        }
-                        root.getChildren().add(cluster);
-                    }
-                    items.clear();
-                    count = 1;
-                    tmp = entry[0];
-                }
+            if(!map.containsKey(parts[0])) {
+                map.put(parts[0], new ArrayList<String>());
+                map.get(parts[0]).add(parts[1]);
             }
-            else {
-                count += 1;
-                items.add(entry[1]);
+            else{
+                map.get(parts[0]).add(parts[1]);
+            }
+        }
+        TreeItem<String> root = new TreeItem<>("Summary");
+
+        for(var key:map.keySet()) {
+            if(map.get(key).size() >= filter) {
+                TreeItem<String> cluster = new TreeItem<>(map.get(key).size()+"\t"+dataMap.get(key).header());
+                Tooltip.install(cluster.getGraphic(), new Tooltip("map.get(key).size()"));
+                cluster.getChildren().add(new TreeItem<>(dataMap.get(key).sequence()));
+                for(String clust: map.get(key)){
+                    if(controller.getSequenceCheckBox().isSelected()) {
+                        cluster.getChildren().add(new TreeItem<>(dataMap.get(clust).sequence()));
+                    }
+                    else {
+                        TreeItem<String> child = new TreeItem<>(dataMap.get(clust).header());
+                        child.getChildren().add(new TreeItem<>(dataMap.get(clust).sequence()));
+                        cluster.getChildren().add(child);
+                    }
+                }
+                root.getChildren().add(cluster);
             }
         }
         root.setExpanded(true);
         controller.getResultsTextArea().setRoot(root);
 
         if(controller.getHeaderCheckBox().isSelected()) {
-            if(!this.dataMap.isEmpty()) {
+            if (!this.dataMap.isEmpty()) {
                 var treeRoot = controller.getResultsTextArea().getRoot();
                 var children = treeRoot.getChildren();
                 for (var ch : children) {
-                    if(ch.getValue().split(RegName).length == 2) {
+                    if (ch.getValue().split(RegName).length == 2) {
                         ch.setValue(ch.getValue().split(RegName)[1].split("]")[0]);
                     }
                     for (var ch2 : ch.getChildren()) {
-                        if(ch2.getValue().split(RegName).length == 2) {
+                        if (ch2.getValue().split(RegName).length == 2) {
                             ch2.setValue(ch2.getValue().split(RegName)[1].split("]")[0]);
                         }
                     }
                 }
             }
         }
+        if(!toShow.isEmpty()) {
+            show(controller);
+        }
+        if(!toRemove.isEmpty()) {
+            remove(controller);
+        }
     }
+
     private void save(Stage stage, WindowController controller) {
         var FileChooser = new FileChooser();
         FileChooser.setTitle("Save results as FastA file");
@@ -431,8 +404,6 @@ public class WindowPresenter {
         var treeRoot = controller.getResultsTextArea().getRoot();
         var children = treeRoot.getChildren();
 
-        var toRemove = new ArrayList<TreeItem<String>>();
-
         if(!children.isEmpty()) {
             var text = controller.getRemoveTextField().getText().toLowerCase();
             if(text.length() > 0) {
@@ -454,22 +425,139 @@ public class WindowPresenter {
         var treeRoot = controller.getResultsTextArea().getRoot();
         var children = treeRoot.getChildren();
 
-        var toRemove = new ArrayList<TreeItem<String>>();
-
         if(!children.isEmpty()) {
             var text = controller.getRemoveTextField().getText().toLowerCase();
             if(text.length() > 0) {
                 for(var ch:children) {
                     var header = ch.getValue().toLowerCase();
                     if(!header.contains(text)) {
-                        toRemove.add(ch);
+                        toShow.add(ch);
                     }
                 }
-                for(var ch:toRemove){
+                for(var ch:toShow){
                     children.remove(ch);
                 }
-                controller.getInfoLabel().setText(toRemove.size() + " Protein were filtered");
+                controller.getInfoLabel().setText(toShow.size() + " Protein were filtered");
             }
         }
     }
+    private void clearResults(){
+        File results = new File("Results/");
+        if(results.exists()) {
+            try {
+                Files.walk(results.toPath()).map(Path::toFile).forEach(File::delete);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        results.delete();
+    }
+
+    private void clearFilter(WindowController controller) {
+        toShow.clear();
+        toRemove.clear();
+        controller.getFilterButton().fire();
+    }
+
+    private void numberOfClusters(WindowController controller) {
+        var root = controller.getResultsTextArea().getRoot();
+        var children = root.getChildren();
+
+        controller.getClusterCountLabel().setText(String.valueOf(children.size()));
+    }
 }
+
+
+
+
+
+// can be removed better version was programmed
+    /*
+    private void adjacencySummery(WindowController controller, int filter) throws IOException {
+        controller.getRemoveButton().setDisable(false);
+        controller.getShowButton().setDisable(false);
+        BufferedReader reader = new BufferedReader(new FileReader("Results/cluster_cluster.tsv"));
+
+        ArrayList<String[]> data = new ArrayList<>();
+        String line;
+
+        while((line = reader.readLine()) != null) {
+            String[] parts = line.split("\t");
+            data.add(parts);
+        }
+        String tmp = null;
+        int count = 0;
+
+        TreeItem<String> root = new TreeItem<>("Summary");
+        ArrayList<String> items = new ArrayList<>();
+
+        for(String[] entry: data) {
+            if(!entry[0].equals(tmp)){
+                if(tmp == null){
+                    tmp = entry[0];
+                    count += 1;
+                    items.add(entry[1]);
+                }
+                else {
+                    if(count >= filter) {
+                        TreeItem<String> cluster;
+                        if(this.dataMap.containsKey(tmp)){
+                            cluster = new TreeItem<>(count + "\t" + this.dataMap.get(tmp).header());
+                            cluster.getChildren().add(new TreeItem<>(this.dataMap.get(tmp).sequence()));
+                        }
+                        else
+                            cluster = new TreeItem<>(count + "\t" + tmp);
+
+                        for(String s: items){
+                            TreeItem<String> child;
+                            TreeItem<String> seq;
+                            if(this.dataMap.containsKey(s)) {
+                                if(controller.getSequenceCheckBox().isSelected()) {
+                                    seq = new TreeItem<>(this.dataMap.get(s).sequence());
+                                    cluster.getChildren().add(seq);
+                                }
+                                else {
+                                    child = new TreeItem<>(this.dataMap.get(s).header());
+                                    seq = new TreeItem<>(this.dataMap.get(s).sequence());
+                                    child.getChildren().add(seq);
+                                    cluster.getChildren().add(child);
+                                }
+                            }
+                            else {
+                                child = new TreeItem<>(s);
+                                cluster.getChildren().add(child);
+                            }
+                        }
+                        root.getChildren().add(cluster);
+                    }
+                    items.clear();
+                    count = 1;
+                    tmp = entry[0];
+                }
+            }
+            else {
+                count += 1;
+                items.add(entry[1]);
+            }
+        }
+        root.setExpanded(true);
+        controller.getResultsTextArea().setRoot(root);
+
+        if(controller.getHeaderCheckBox().isSelected()) {
+            if(!this.dataMap.isEmpty()) {
+                var treeRoot = controller.getResultsTextArea().getRoot();
+                var children = treeRoot.getChildren();
+                for (var ch : children) {
+                    if(ch.getValue().split(RegName).length == 2) {
+                        ch.setValue(ch.getValue().split(RegName)[1].split("]")[0]);
+                    }
+                    for (var ch2 : ch.getChildren()) {
+                        if(ch2.getValue().split(RegName).length == 2) {
+                            ch2.setValue(ch2.getValue().split(RegName)[1].split("]")[0]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    */
