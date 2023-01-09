@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class processExecutor  extends Task<String> {
+public class processExecutor {
     ProcessBuilder processBuilder = new ProcessBuilder();
     String[] commands;
 
@@ -14,8 +14,8 @@ public class processExecutor  extends Task<String> {
         this.commands = commands;
         processBuilder.command(commands);
     }
-    @Override
-    protected String call() throws IOException {
+
+    public String run() throws IOException {
         Process process = processBuilder.start();
 
         StringBuilder output = new StringBuilder();

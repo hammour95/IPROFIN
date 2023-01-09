@@ -184,6 +184,24 @@ public class WindowController {
     @FXML
     private Label clusterCountLabel;
 
+    @FXML
+    private Button automaticButton;
+
+    @FXML
+    private Button msaButton;
+
+    @FXML
+    private Button signalPButton;
+
+    @FXML
+    private ProgressBar progressBar;
+
+    @FXML
+    private MenuItem signalPMenuItem;
+
+    @FXML
+    private MenuItem deepTMHMMMenuItem;
+
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
     }
@@ -422,5 +440,29 @@ public class WindowController {
 
     public Label getClusterCountLabel() {
         return clusterCountLabel;
+    }
+
+    public Button getAutomaticButton() {
+        return automaticButton;
+    }
+
+    public Button getMsaButton() {
+        return msaButton;
+    }
+
+    public Button getSignalPButton() {
+        return signalPButton;
+    }
+
+    public ProgressBar getProgressBar() {
+        return progressBar;
+    }
+
+    public MenuItem getDeepTMHMMMenuItem() {
+        return deepTMHMMMenuItem;
+    }
+
+    public MenuItem getSignalPMenuItem() {
+        return signalPMenuItem;
     }
 }

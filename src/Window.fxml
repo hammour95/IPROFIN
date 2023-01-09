@@ -10,6 +10,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.Tab?>
@@ -31,7 +32,12 @@
    <bottom>
       <ToolBar prefHeight="24.0" prefWidth="664.0" BorderPane.alignment="CENTER">
          <items>
-            <Label fx:id="infoLabel" text="IProFin: by Majd Hammour" />
+            <AnchorPane>
+               <children>
+                  <Label fx:id="infoLabel" text="IProFin: by Majd Hammour" />
+                  <ProgressBar fx:id="progressBar" layoutX="808.0" prefHeight="20.0" prefWidth="112.0" progress="0.0" visible="false" />
+               </children>
+            </AnchorPane>
          </items>
       </ToolBar>
    </bottom>
@@ -142,6 +148,12 @@
                         <MenuItem fx:id="fullScreenMenuItem" mnemonicParsing="false" text="Full screen" />
                      </items>
                 </Menu>
+                  <Menu mnemonicParsing="false" text="Prediction">
+                    <items>
+                      <MenuItem fx:id="signalPMenuItem" disable="true" mnemonicParsing="false" text="SignalP6" />
+                        <MenuItem fx:id="deepTMHMMMenuItem" disable="true" mnemonicParsing="false" text="DeepTMHMM" />
+                    </items>
+                  </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                   <items>
                     <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About" />
@@ -208,7 +220,26 @@
                      </graphic>
                   </Button>
                   <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="40.0" />
-                  <Separator layoutX="514.0" layoutY="10.0" orientation="VERTICAL" prefHeight="67.0" prefWidth="300.0" visible="false" />
+                  <Button fx:id="automaticButton" disable="true" layoutX="450.0" layoutY="10.0" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
+                     <graphic>
+                        <ImageView fitHeight="52.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@icons/running.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </Button>
+                  <Button fx:id="msaButton" disable="true" layoutX="570.0" layoutY="10.0" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0" text="MSA" textAlignment="CENTER">
+                     <font>
+                        <Font size="22.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="signalPButton" disable="true" layoutX="650.0" layoutY="10.0" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0" text="SignalP" textAlignment="CENTER">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Button>
+                  <Separator layoutX="514.0" layoutY="10.0" orientation="VERTICAL" prefHeight="67.0" prefWidth="61.0" visible="false" />
                 <Button fx:id="startButton" mnemonicParsing="false" prefHeight="70.0" prefWidth="80.0">
                      <graphic>
                         <ImageView fitHeight="58.0" fitWidth="77.0" pickOnBounds="true" preserveRatio="true">

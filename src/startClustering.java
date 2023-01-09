@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
  * Start the selected tool for clustering and show the results
  */
 public class startClustering {
-    public startClustering(WindowController controller, int spec,
+    public startClustering(WindowController controller, WindowPresenter presenter, int spec,
                            String method, ArrayList<String> input) throws IOException {
         float minSeqId = (float) controller.getMinSeqIdSlider().getValue();
         float coverage = (float) controller.getCoverageSlider().getValue();
@@ -152,10 +152,7 @@ public class startClustering {
                 processExecutor processExecutor = new processExecutor(mmseq.getCommand());
 
                 // running mmseqs2 and generating the result files
-                processExecutor.setOnSucceeded(e->{
-                    controller.getStdOutTextArea().setText(processExecutor.getValue());
-                });
-                processExecutor.run();
+                controller.getStdOutTextArea().setText(processExecutor.run());
 
                 controller.getInfoLabel().setText("Finished mmseqs2 analysis // Spec.: " + spec +
                         " Parameters: minSeqId: " + minSeqId + " coverage: " +
@@ -165,7 +162,7 @@ public class startClustering {
             }
         }
         else if(method.equals("diamond")) {
-            String db;
+            String db = presenter.getDiamondDB();
             File resultsDir = new File("Results/diamond");
             if (!resultsDir.exists()) {
                 resultsDir.mkdirs();
@@ -176,17 +173,19 @@ public class startClustering {
             if (input.isEmpty()) {
                 controller.getInfoLabel().setText("please open the FastA files directory!");
             } else {
-                var dialog = new ChoiceDialog<String>(input.get(0), input);
-                dialog.setTitle("Choose a species");
-                dialog.setHeaderText("Choose a species to make the database from it");
+                if(db == null || db.equals("cancelled.")) {
+                    var dialog = new ChoiceDialog<String>(input.get(0), input);
+                    dialog.setTitle("Choose a species");
+                    dialog.setHeaderText("Choose a species to make the database from it");
 
-                Optional<String> result = dialog.showAndWait();
-                db = "cancelled.";
+                    Optional<String> result = dialog.showAndWait();
+                    db = "cancelled.";
 
-                if (result.isPresent()) {
-                    db = result.get();
+                    if (result.isPresent()) {
+                        db = result.get();
+                        presenter.setDiamondDB(db);
+                    }
                 }
-
                 if(db.equals("cancelled.")) {
                     controller.getInfoLabel().setText("Process cancelled.");
                 }
@@ -197,10 +196,7 @@ public class startClustering {
                     String[] makeDB = {dmnd.getPath(), "makedb", "--db", "Results/db", "--in", db};
 
                     processExecutor processExecutor = new processExecutor(makeDB);
-                    processExecutor.setOnSucceeded(e->{
-                        controller.getStdOutTextArea().setText(processExecutor.getValue());
-                    });
-                    processExecutor.run();
+                    controller.getStdOutTextArea().setText(processExecutor.run());
 
 
                     // then diamond blastp will be executed with every query file
@@ -229,10 +225,7 @@ public class startClustering {
                         String specName = query.split("/")[query.split("/").length-1].split(".fa")[0];
                         dmnd.setOut("Results/diamond/" + specName);
                         processExecutor Diamond = new processExecutor(dmnd.getCommand());
-                        Diamond.setOnSucceeded(e-> {
-                            controller.getStdOutTextArea().appendText("\n" + Diamond.getValue());
-                        });
-                        Diamond.run();
+                        controller.getStdOutTextArea().setText(Diamond.run());
                     }
                     convertDResults("Results/diamond/");
                 }
