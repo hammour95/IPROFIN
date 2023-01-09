@@ -63,7 +63,7 @@ public class addOptions {
         clusterMods.add("Greedy clustering by sequence length (CDHIT)");
 
         ObservableList<String> clusterList = FXCollections.observableArrayList(clusterMods);
-        controller.getClusterModeChoiceBox().setItems(seqIdList);
+        controller.getClusterModeChoiceBox().setItems(clusterList);
         controller.getClusterModeChoiceBox().setValue("Set-Cover (greedy)");
 
         // Diamond scoring matrix
