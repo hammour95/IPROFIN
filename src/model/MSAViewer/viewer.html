@@ -1,0 +1,22 @@
+<!-- include MSA js + css -->
+<script src="msa.js"></script>  
+  
+
+<div id="menuDiv"></div>
+<div id="yourDiv">press "Run with JS"</div>
+
+<script id="javascript">
+var opts = {
+  importURL: "../../aligned.fasta"
+};
+
+opts.el = document.getElementById("yourDiv");
+opts.vis = {conserv: true, overviewbox: true, labelName: false}
+opts.zoomer = {alignmentHeight: 405, labelWidth: 110,labelFontsize: "12px",labelIdLength: 150}
+
+// init msa
+var m = new msa.msa(opts);
+
+// call render at the end to display the whole MSA
+m.render();
+</script>

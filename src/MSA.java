@@ -1,9 +1,5 @@
 import javafx.application.Application;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
@@ -14,29 +10,24 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MSA extends Application {
 
     WindowController controller;
 
-    GridPane gridPane;
-    VBox vBox;
-
-    ScrollPane scrollPane;
+    WebView webView;
     ArrayList<String> entries = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        gridPane = new GridPane();
+        webView = new WebView();
 
-        if(!entries.isEmpty()) {
-            printListView();
-        }
-        var scrollPane = new ScrollPane();
-        scrollPane.setContent(gridPane);
-        Scene scene = new Scene(scrollPane, 800, 500);
+        var webEngine = webView.getEngine();
+
+        webEngine.load("http://localhost:63343/IPROFIN/model/MSAViewer/viewer.html?_ijt=gbso9fg1tutoeq3m7diunsvn9o&_ij_reload=RELOAD_ON_SAVE");
+
+        Scene scene = new Scene(webView, 1200, 600);
 
         primaryStage.setTitle("MSA Viewer");
         primaryStage.setScene(scene);
@@ -56,10 +47,11 @@ public class MSA extends Application {
                 entries.add(ch.getChildren().get(0).getValue());
             }
         }
-        printListView();
+        alignCluster();
     }
 
-    public void printListView() throws IOException {
+
+    public void alignCluster() throws IOException {
         BufferedWriter wr = new BufferedWriter(new FileWriter("Results/cluster.fasta"));
         for(var i: entries) {
             wr.write(i + "\n");
@@ -78,22 +70,5 @@ public class MSA extends Application {
 
         fastaParser parser = new fastaParser();
         parser.read("src/aligned.fasta");
-
-        if(gridPane != null) {
-            gridPane = new GridPane();
-            int r = 0;
-            for(var headerSequence: parser) {
-                int c = 0;
-                gridPane.addRow(r);
-                r ++;
-                for(var nec: headerSequence.sequence().toCharArray()){
-                    if(c == 0) {
-                        gridPane.addColumn(c);
-                    }
-                    gridPane.add(new Label(String.valueOf(nec)), c, r);
-                    c++;
-                }
-            }
-        }
     }
 }

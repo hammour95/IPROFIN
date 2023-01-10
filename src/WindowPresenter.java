@@ -296,7 +296,6 @@ public class WindowPresenter {
             controller.getSignalPButton().disableProperty().bind(signalP.runningProperty());
 
             signalP.setOnSucceeded(s-> {
-                System.out.println("fertig");
                 try {
                     signalPResults(controller);
                     signalPUpdateTree(controller);
@@ -306,6 +305,17 @@ public class WindowPresenter {
             });
             signalP.start();
         });
+
+        controller.getDeepTMHMMMenuItem().setOnAction(e-> {
+            deepTMHMMStarter deepTMHMMStarter = new deepTMHMMStarter(controller);
+
+            try {
+                deepTMHMMStarter.start(new Stage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
     }
 
     /**
@@ -575,10 +585,6 @@ public class WindowPresenter {
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
-        }
-        File signalP = new File("Results/SignalP");
-        if(signalP.exists()) {
-            signalP.delete();
         }
         results.delete();
     }
