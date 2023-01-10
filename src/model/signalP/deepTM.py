@@ -27,7 +27,7 @@ def main():
     deeptmhmm = biolib.load('DTU/DeepTMHMM')
 
     deeptmhmm_job = deeptmhmm.cli(args=file)
-    deeptmhmm_job.save_files('result')
+    deeptmhmm_job.save_files('Results')
 
 
 if __name__ == '__main__':
