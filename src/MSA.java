@@ -1,14 +1,13 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import model.processExecutor;
 import model.fastaParser;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 public class MSA extends Application {
@@ -16,16 +15,21 @@ public class MSA extends Application {
     WindowController controller;
 
     WebView webView;
+
+    WebEngine webEngine;
     ArrayList<String> entries = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+
         webView = new WebView();
 
-        var webEngine = webView.getEngine();
+        webEngine = webView.getEngine();
 
-        webEngine.load("http://localhost:63343/IPROFIN/model/MSAViewer/viewer.html?_ijt=gbso9fg1tutoeq3m7diunsvn9o&_ij_reload=RELOAD_ON_SAVE");
+        String currentPath = new java.io.File(".").getCanonicalPath();
+
+        webEngine.load("file:///" + currentPath + "/src/model/MSAViewer/viewer.html");
 
         Scene scene = new Scene(webView, 1200, 600);
 
@@ -48,6 +52,8 @@ public class MSA extends Application {
             }
         }
         alignCluster();
+        if(webEngine != null)
+            webEngine.reload();
     }
 
 
@@ -68,7 +74,18 @@ public class MSA extends Application {
         processExecutor processExecutor = new processExecutor(command.toArray(new String[0]));
         processExecutor.run();
 
-        fastaParser parser = new fastaParser();
-        parser.read("src/aligned.fasta");
+        BufferedReader reader = new BufferedReader(new FileReader("src/aligned.fasta"));
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter("src/model/MSAViewer/alignment.js"));
+
+        String line;
+
+        writer.write("var fasta = \"");
+        while((line = reader.readLine()) != null) {
+            writer.write(line + "\\n");
+        }
+        writer.write("\"");
+
+        writer.close();
     }
 }

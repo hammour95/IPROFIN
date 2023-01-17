@@ -1,15 +1,14 @@
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeItem;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import model.*;
 
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import optionsWindow.*;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -17,7 +16,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
 
 /**
  * The window presenter
@@ -27,6 +25,8 @@ public class WindowPresenter {
 
     ArrayList<String> input = new ArrayList<>();
     int spec;
+
+    //TODO: RegName changer MenuItem
     String RegName = "protein=";
 
     fastaParser data = new fastaParser();
@@ -35,6 +35,10 @@ public class WindowPresenter {
     HashMap<String, String> deepTM = new HashMap<>();
 
     HashMap<String, String> signalP = new HashMap<>();
+
+    HashMap<TreeItem<String>, String> clustersRes = new HashMap<TreeItem<String>, String>();
+    HashMap<TreeItem<String>, String> clustersCon = new HashMap<TreeItem<String>, String>();
+
 
     String method;
 
@@ -98,7 +102,7 @@ public class WindowPresenter {
             controller.getAdvancedDiamondPane().setVisible(false);
             controller.getOptionsPane().setVisible(true);
             controller.getCoverageSlider().setDisable(false);
-            controller.getAutomaticButton().setDisable(true);
+            controller.getAutomaticButton().setDisable(false);
 
         });
 
@@ -110,7 +114,7 @@ public class WindowPresenter {
             controller.getShowAdvancedOptionsCheckBox().setSelected(false);
             controller.getAdvancedDiamondPane().setVisible(false);
             controller.getOptionsPane().setVisible(true);
-            controller.getAutomaticButton().setDisable(true);
+            controller.getAutomaticButton().setDisable(false);
         });
 
         controller.getShowAdvancedOptionsCheckBox().setOnAction(e->{
@@ -145,31 +149,7 @@ public class WindowPresenter {
         });
         controller.getOpenButton().setOnAction(e-> controller.getOpenMenuItem().fire());
 
-        controller.getStartButton().setOnAction(e-> {
-            clearResults();
-
-            if(method != null) {
-                try {
-                    new startClustering(controller, this, spec, method, input);
-                    controller.getMinMatchesTxtField().setValue(spec);
-                    if(new File("Results/cluster_cluster.tsv").exists()) {
-                        summary(controller, spec);
-                        numberOfClusters(controller);
-                    }
-                    controller.getResultsPane().setVisible(true);
-                    controller.getMsaButton().setDisable(false);
-                    controller.getSignalPButton().setDisable(false);
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            else{
-                controller.getInfoLabel().setText("Please choose a method!");
-            }
-            if(!signalP.isEmpty()) {
-                signalPUpdateTree(controller);
-            }
-        });
+        controller.getStartButton().setOnAction(e-> startButton(controller));
 
         controller.getDarkModeMenuItem().selectedProperty().addListener(e -> {
             if(controller.getDarkModeMenuItem().isSelected())
@@ -195,12 +175,25 @@ public class WindowPresenter {
         });
 
         controller.getSequenceCheckBox().setOnAction(e-> controller.getFilterButton().fire());
-        controller.getHeaderCheckBox().setOnAction(e-> controller.getFilterButton().fire());
+        controller.getHeaderCheckBox().setOnAction(e-> {
+            onlyProName(controller, controller.getResultsTextArea().getRoot(), clustersRes);
+            if(controller.getConservedTreeView().getRoot() != null) {
+                onlyProName(controller, controller.getConservedTreeView().getRoot(), clustersCon);
+            }
+        });
 
         controller.getAutomaticButton().setOnAction(e-> {
             try {
-                new autoParameters(this, controller).start(new Stage());
-            } catch (Exception ex) {
+                var optionsView = new optionsWindowView();
+
+                var optionsStage =  new Stage();
+                // set the stage and show
+                optionsStage.setScene(new Scene(optionsView.getRoot()));
+                var optionsPresenter = new OptionsWindowPresenter(optionsStage, optionsView.getController(),
+                        this, controller);
+                optionsStage.setTitle("Settings");
+                optionsStage.show();
+            } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
         });
@@ -214,6 +207,10 @@ public class WindowPresenter {
                                 newValue.getChildren().size() > 1){
                             controller.getSignalPMenuItem().setDisable(false);
                             controller.getDeepTMHMMMenuItem().setDisable(false);
+                            controller.getMsaButton().setDisable(false);
+                            controller.getMsaViewerMenuItem().setDisable(false);
+                            controller.getJalViewMenuItem().setDisable(false);
+
                             try {
                                 msa.update();
                             } catch (IOException e) {
@@ -223,11 +220,25 @@ public class WindowPresenter {
                         else{
                             controller.getSignalPMenuItem().setDisable(true);
                             controller.getDeepTMHMMMenuItem().setDisable(true);
+                            controller.getMsaButton().setDisable(true);
+                            controller.getMsaViewerMenuItem().setDisable(true);
+                            controller.getJalViewMenuItem().setDisable(true);
                         }
                     }
                 }
         );
 
+        controller.getConservedTreeView().getSelectionModel().selectedItemProperty().addListener(
+                new ChangeListener<TreeItem<String>>() {
+                    @Override
+                    public void changed(ObservableValue<? extends TreeItem<String>> observable,
+                                        TreeItem<String> oldValue, TreeItem<String> newValue) {
+                        controller.getResultsTextArea().getSelectionModel().select(
+                                controller.getConservedTreeView().getSelectionModel().getSelectedIndex()
+                        );
+                    }
+                }
+        );
         controller.getMsaButton().setOnAction(e-> {
             try {
                 msa.start(new Stage());
@@ -236,33 +247,24 @@ public class WindowPresenter {
             }
         });
 
+        controller.getMsaViewerMenuItem().setOnAction(e-> controller.getMsaButton().fire());
+
+        controller.getJalViewMenuItem().setOnAction(e->{
+            JalviewFX jalviewFX = new JalviewFX();
+            jalviewFX.start(new Stage());
+        });
+
         controller.getSignalPButton().setOnAction(e-> {
-            try {
-                BufferedWriter br = new BufferedWriter(new FileWriter("Results/rep.fasta"));
-                var treeRoot = controller.getResultsTextArea().getRoot();
-                var children = treeRoot.getChildren();
-                for(var ch:children){
-                    if(controller.getHeaderCheckBox().isSelected()) {
-                        br.write(">" + ch.getValue() + "\n");
-                        br.write(ch.getChildren().get(0).getValue() + "\n");
-                    }
-                    else {
-                        br.write(">" + ch.getValue().split("\t")[1] + "\n");
-                        br.write(ch.getChildren().get(0).getValue() + "\n");
-                    }
-                }
-                br.close();
-            }
-            catch (IOException exc) {
-                controller.getInfoLabel().setText("ERROR: " + exc.getMessage());
-            }
+
+            saveClustSignal(controller);
             var signalP = new signalpPrediction();
             controller.getProgressBar().visibleProperty().bind(signalP.runningProperty());
             controller.getProgressBar().progressProperty().bind(signalP.progressProperty());
-            controller.getSignalPButton().disableProperty().bind(signalP.runningProperty());
+            controller.getSignalPButton().setDisable(true);
 
             signalP.setOnSucceeded(s-> {
                 try {
+                    controller.getSignalPButton().setDisable(false);
                     signalPResults(controller);
                     signalPUpdateTree(controller);
                 } catch (IOException ex) {
@@ -316,6 +318,42 @@ public class WindowPresenter {
             }
         });
 
+        controller.getKmerMenuItem().setOnAction(e->{
+            var magic = new magicRun(this, controller);
+
+            TextInputDialog textInputDialog = new TextInputDialog("4");
+            textInputDialog.setHeaderText("Enter the Kmer Size");
+
+            textInputDialog.showAndWait();
+            int kmer = Integer.parseInt(textInputDialog.getEditor().getText());
+
+            TextInputDialog textInputDialog2 = new TextInputDialog("0");
+            textInputDialog2.setHeaderText("Enter the Tolerance");
+
+            textInputDialog2.showAndWait();
+            int kmerSize = Integer.parseInt(textInputDialog.getEditor().getText());
+            int kmerTol = Integer.parseInt(textInputDialog2.getEditor().getText());
+
+            magic.kmerSearch(kmerSize, kmerTol);
+        });
+
+        controller.getCheckMSAMenuItem().setOnAction(e-> {
+            TextInputDialog textInputDialog = new TextInputDialog("0");
+            textInputDialog.setHeaderText("Enter the Tolerance");
+
+            textInputDialog.showAndWait();
+            int tolerance = Integer.parseInt(textInputDialog.getEditor().getText());
+
+            var magic = new magicRun(this, controller);
+            try {
+                magic.checkMSA(tolerance);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        controller.getHeader2CheckBox().selectedProperty().bind(controller.getHeaderCheckBox().selectedProperty());
+        controller.getClusterCount2Label().textProperty().bind(controller.getClusterCountLabel().textProperty());
     }
 
     /**
@@ -422,15 +460,29 @@ public class WindowPresenter {
         root.setExpanded(true);
         controller.getResultsTextArea().setRoot(root);
 
+        if(!toShow.isEmpty()) {
+            show(controller);
+        }
+        if(!toRemove.isEmpty()) {
+            remove(controller);
+        }
+    }
+
+    private void onlyProName(WindowController controller, TreeItem<String> treeRoot,
+                             HashMap<TreeItem<String>, String> proNames) {
+
+        var children = treeRoot.getChildren();
+
         if(controller.getHeaderCheckBox().isSelected()) {
+            proNames.clear();
             if (!this.dataMap.isEmpty()) {
-                var treeRoot = controller.getResultsTextArea().getRoot();
-                var children = treeRoot.getChildren();
                 for (var ch : children) {
+                    proNames.put(ch, ch.getValue());
                     if (ch.getValue().split(RegName).length == 2) {
                         ch.setValue(ch.getValue().split(RegName)[1].split("]")[0]);
                     }
                     for (var ch2 : ch.getChildren()) {
+                        proNames.put(ch2, ch2.getValue());
                         if (ch2.getValue().split(RegName).length == 2) {
                             ch2.setValue(ch2.getValue().split(RegName)[1].split("]")[0]);
                         }
@@ -438,11 +490,54 @@ public class WindowPresenter {
                 }
             }
         }
-        if(!toShow.isEmpty()) {
-            show(controller);
+
+        else {
+            for (var ch : children) {
+                if(proNames.containsKey(ch)) {
+                    ch.setValue(proNames.get(ch));
+                }
+                for (var ch2 : ch.getChildren()) {
+                    if(proNames.containsKey(ch2)) {
+                        ch2.setValue(proNames.get(ch2));
+                    }
+                }
+            }
         }
-        if(!toRemove.isEmpty()) {
-            remove(controller);
+        if(!signalP.isEmpty()) {
+            signalPUpdateTree(controller);
+        }
+    }
+
+    private void startButton(WindowController controller) {
+        clearResults();
+        signalP.clear();
+
+        if(method != null) {
+            try {
+                new startClustering(controller, this, spec, method, input);
+                controller.getMinMatchesTxtField().setValue(spec);
+                if(new File("Results/cluster_cluster.tsv").exists()) {
+                    summary(controller, spec);
+                    numberOfClusters(controller);
+                }
+                controller.getResultsPane().setVisible(true);
+                controller.getSignalPButton().setDisable(false);
+                controller.getKmerMenuItem().setDisable(false);
+                controller.getFilterButton().setDisable(false);
+                controller.getSequenceCheckBox().setDisable(false);
+                controller.getCheckMSAMenuItem().setDisable(false);
+                controller.getFilterButton().setDisable(false);
+                controller.getShowButton().setDisable(false);
+                controller.getRemoveButton().setDisable(false);
+
+                controller.getConservedTab().setDisable(true);
+                controller.getResultsPane().getSelectionModel().select(controller.getResultsTab());
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        else{
+            controller.getInfoLabel().setText("Please choose a method!");
         }
     }
 
@@ -595,14 +690,14 @@ public class WindowPresenter {
         controller.getFilterButton().fire();
     }
 
-    private void numberOfClusters(WindowController controller) {
+    public void numberOfClusters(WindowController controller) {
         var root = controller.getResultsTextArea().getRoot();
         var children = root.getChildren();
 
         controller.getClusterCountLabel().setText(String.valueOf(children.size()));
     }
 
-    private void signalPResults(WindowController controller) throws IOException {
+    public void signalPResults(WindowController controller) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader("Results/SignalP/prediction_results.txt"));
 
         String line;
@@ -618,18 +713,41 @@ public class WindowPresenter {
         }
     }
 
-    private void signalPUpdateTree(WindowController controller) {
+    public void signalPUpdateTree(WindowController controller) {
         var treeRoot = controller.getResultsTextArea().getRoot();
         var children = treeRoot.getChildren();
 
-        for(var ch:children){
-            if(controller.getHeaderCheckBox().isSelected()) {
-                ch.setValue(ch.getValue() + " | SignalP6= " + signalP.get(ch.getValue()));
+        if(!signalP.isEmpty()) {
+            for (var ch : children) {
+                if (controller.getHeaderCheckBox().isSelected()) {
+                    ch.setValue(ch.getValue() + " | SignalP6= " + signalP.get(ch.getValue()));
+                } else {
+                    ch.setValue(ch.getValue() + " | SignalP6= " +
+                            signalP.get(ch.getValue().split(RegName)[1].split("]")[0]));
+                }
             }
-            else {
-                ch.setValue(ch.getValue() + " | SignalP6= " +
-                        signalP.get(ch.getValue().split(RegName)[1].split("]")[0]));
+        }
+    }
+
+    public void saveClustSignal(WindowController controller) {
+        try {
+            BufferedWriter br = new BufferedWriter(new FileWriter("Results/rep.fasta"));
+            var treeRoot = controller.getResultsTextArea().getRoot();
+            var children = treeRoot.getChildren();
+            for(var ch:children){
+                if(controller.getHeaderCheckBox().isSelected()) {
+                    br.write(">" + ch.getValue() + "\n");
+                    br.write(ch.getChildren().get(0).getValue() + "\n");
+                }
+                else {
+                    br.write(">" + ch.getValue().split("\t")[1] + "\n");
+                    br.write(ch.getChildren().get(0).getValue() + "\n");
+                }
             }
+            br.close();
+        }
+        catch (IOException exc) {
+            controller.getInfoLabel().setText("ERROR: " + exc.getMessage());
         }
     }
 
@@ -673,98 +791,3 @@ public class WindowPresenter {
         this.diamondDB = diamondDB;
     }
 }
-
-
-
-
-
-// can be removed better version was programmed
-    /*
-    private void adjacencySummery(WindowController controller, int filter) throws IOException {
-        controller.getRemoveButton().setDisable(false);
-        controller.getShowButton().setDisable(false);
-        BufferedReader reader = new BufferedReader(new FileReader("Results/cluster_cluster.tsv"));
-
-        ArrayList<String[]> data = new ArrayList<>();
-        String line;
-
-        while((line = reader.readLine()) != null) {
-            String[] parts = line.split("\t");
-            data.add(parts);
-        }
-        String tmp = null;
-        int count = 0;
-
-        TreeItem<String> root = new TreeItem<>("Summary");
-        ArrayList<String> items = new ArrayList<>();
-
-        for(String[] entry: data) {
-            if(!entry[0].equals(tmp)){
-                if(tmp == null){
-                    tmp = entry[0];
-                    count += 1;
-                    items.add(entry[1]);
-                }
-                else {
-                    if(count >= filter) {
-                        TreeItem<String> cluster;
-                        if(this.dataMap.containsKey(tmp)){
-                            cluster = new TreeItem<>(count + "\t" + this.dataMap.get(tmp).header());
-                            cluster.getChildren().add(new TreeItem<>(this.dataMap.get(tmp).sequence()));
-                        }
-                        else
-                            cluster = new TreeItem<>(count + "\t" + tmp);
-
-                        for(String s: items){
-                            TreeItem<String> child;
-                            TreeItem<String> seq;
-                            if(this.dataMap.containsKey(s)) {
-                                if(controller.getSequenceCheckBox().isSelected()) {
-                                    seq = new TreeItem<>(this.dataMap.get(s).sequence());
-                                    cluster.getChildren().add(seq);
-                                }
-                                else {
-                                    child = new TreeItem<>(this.dataMap.get(s).header());
-                                    seq = new TreeItem<>(this.dataMap.get(s).sequence());
-                                    child.getChildren().add(seq);
-                                    cluster.getChildren().add(child);
-                                }
-                            }
-                            else {
-                                child = new TreeItem<>(s);
-                                cluster.getChildren().add(child);
-                            }
-                        }
-                        root.getChildren().add(cluster);
-                    }
-                    items.clear();
-                    count = 1;
-                    tmp = entry[0];
-                }
-            }
-            else {
-                count += 1;
-                items.add(entry[1]);
-            }
-        }
-        root.setExpanded(true);
-        controller.getResultsTextArea().setRoot(root);
-
-        if(controller.getHeaderCheckBox().isSelected()) {
-            if(!this.dataMap.isEmpty()) {
-                var treeRoot = controller.getResultsTextArea().getRoot();
-                var children = treeRoot.getChildren();
-                for (var ch : children) {
-                    if(ch.getValue().split(RegName).length == 2) {
-                        ch.setValue(ch.getValue().split(RegName)[1].split("]")[0]);
-                    }
-                    for (var ch2 : ch.getChildren()) {
-                        if(ch2.getValue().split(RegName).length == 2) {
-                            ch2.setValue(ch2.getValue().split(RegName)[1].split("]")[0]);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */

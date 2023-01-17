@@ -137,7 +137,7 @@ public class WindowController {
     private Pane optionsPane;
 
     @FXML
-    private Pane resultsPane;
+    private TabPane resultsPane;
 
     @FXML
     private Pane advancedDiamondPane;
@@ -201,6 +201,33 @@ public class WindowController {
 
     @FXML
     private MenuItem deepTMHMMMenuItem;
+
+    @FXML
+    private MenuItem jalViewMenuItem;
+
+    @FXML
+    private MenuItem msaViewerMenuItem;
+
+    @FXML
+    private Tab resultsTab;
+
+    @FXML
+    private MenuItem kmerMenuItem;
+
+    @FXML
+    private Tab conservedTab;
+
+    @FXML
+    private TreeView<String> conservedTreeView;
+
+    @FXML
+    private MenuItem checkMSAMenuItem;
+
+    @FXML
+    private Label clusterCount2Label;
+
+    @FXML
+    private CheckBox header2CheckBox;
 
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
@@ -378,7 +405,7 @@ public class WindowController {
         return optionsPane;
     }
 
-    public Pane getResultsPane() {
+    public TabPane getResultsPane() {
         return resultsPane;
     }
 
@@ -465,4 +492,41 @@ public class WindowController {
     public MenuItem getSignalPMenuItem() {
         return signalPMenuItem;
     }
+
+    public MenuItem getJalViewMenuItem() {
+        return jalViewMenuItem;
+    }
+
+    public MenuItem getMsaViewerMenuItem() {
+        return msaViewerMenuItem;
+    }
+
+    public Tab getResultsTab() {
+        return resultsTab;
+    }
+
+    public MenuItem getKmerMenuItem() {
+        return kmerMenuItem;
+    }
+
+    public Tab getConservedTab() {
+        return conservedTab;
+    }
+
+    public TreeView<String> getConservedTreeView() {
+        return conservedTreeView;
+    }
+
+    public MenuItem getCheckMSAMenuItem() {
+        return checkMSAMenuItem;
+    }
+
+    public CheckBox getHeader2CheckBox() {
+        return header2CheckBox;
+    }
+
+    public Label getClusterCount2Label() {
+        return clusterCount2Label;
+    }
+
 }

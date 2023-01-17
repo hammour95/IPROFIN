@@ -42,76 +42,109 @@
       </ToolBar>
    </bottom>
    <center>
-      <BorderPane fx:id="resultsPane" visible="false">
-         <center>
-            <TabPane prefHeight="549.0" prefWidth="752.0" tabClosingPolicy="UNAVAILABLE">
-              <tabs>
-                <Tab text="Stdout">
-                  <content>
-                        <TextArea fx:id="stdOutTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
-                  </content>
-                </Tab>
-                <Tab text="Plain Results">
-                     <content>
-                        <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
-                          <tabs>
-                            <Tab text="Representatives">
-                                 <content>
-                                    <ListView fx:id="representativesTextArea" prefHeight="200.0" prefWidth="200.0" />
-                                 </content>
-                              </Tab>
-                            <Tab text="FASTA-like per cluster">
-                                 <content>
-                                    <ListView fx:id="flcTextArea" prefHeight="200.0" prefWidth="200.0" />
-                                 </content>
-                              </Tab>
-                              <Tab text="Adjecency list">
-                                 <content>
-                                    <ListView fx:id="adjecencyListTextArea" prefHeight="200.0" prefWidth="200.0" />
-                                 </content>
-                              </Tab>
-                          </tabs>
-                        </TabPane>
-                     </content>
-                </Tab>
-                  <Tab text="Results">
-                     <content>
-                        <BorderPane>
-                           <top>
-                              <VBox BorderPane.alignment="CENTER">
-                                 <children>
-                                    <ToolBar prefHeight="40.0" prefWidth="915.0">
-                                      <items>
-                                          <Label text="Min. matches" />
-                                          <Slider fx:id="minMatchesTxtField" blockIncrement="1.0" majorTickUnit="2.0" max="50.0" minorTickCount="1" prefHeight="38.0" prefWidth="510.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
-                                        <Button fx:id="filterButton" mnemonicParsing="false" prefHeight="28.0" prefWidth="61.0" text="Filter" />
-                                          <Label fx:id="clusterCountLabel" prefHeight="27.0" prefWidth="64.0" />
-                                      </items>
-                                    </ToolBar>
-                                    <ToolBar prefHeight="40.0" prefWidth="200.0">
-                                      <items>
-                                          <CheckBox fx:id="sequenceCheckBox" mnemonicParsing="false" text="Only Sequence" />
-                                          <CheckBox fx:id="headerCheckBox" mnemonicParsing="false" text="ProNames" />
-                                          <Separator orientation="VERTICAL" prefHeight="29.0" prefWidth="14.0" />
-                                          <TextField fx:id="removeTextField" prefHeight="26.0" prefWidth="306.0" promptText="Enter protein name to remove or show" />
-                                        <Button fx:id="removeButton" disable="true" mnemonicParsing="false" text="Remove" />
-                                          <Button fx:id="showButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Show" />
-                                          <Button fx:id="clearFiltersButton" disable="true" layoutX="602.0" layoutY="12.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Clear" />
-                                      </items>
-                                    </ToolBar>
-                                 </children>
-                              </VBox>
-                           </top>
-                           <center>
-                              <TreeView fx:id="resultsTextArea" prefHeight="476.0" prefWidth="405.0" />
-                           </center>
-                        </BorderPane>
-                     </content>
-                  </Tab>
-              </tabs>
-            </TabPane>
-         </center>
-      </BorderPane>
+      <TabPane fx:id="resultsPane" prefHeight="549.0" prefWidth="752.0" tabClosingPolicy="UNAVAILABLE" visible="false">
+        <tabs>
+          <Tab text="Stdout">
+            <content>
+                  <TextArea fx:id="stdOutTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+          <Tab text="Plain Results">
+               <content>
+                  <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                      <Tab text="Representatives">
+                           <content>
+                              <ListView fx:id="representativesTextArea" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                        </Tab>
+                      <Tab text="FASTA-like per cluster">
+                           <content>
+                              <ListView fx:id="flcTextArea" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                        </Tab>
+                        <Tab text="Adjecency list">
+                           <content>
+                              <ListView fx:id="adjecencyListTextArea" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                        </Tab>
+                    </tabs>
+                  </TabPane>
+               </content>
+          </Tab>
+            <Tab fx:id="resultsTab" text="Results">
+               <content>
+                  <BorderPane>
+                     <top>
+                        <VBox BorderPane.alignment="CENTER">
+                           <children>
+                              <ToolBar prefHeight="40.0" prefWidth="915.0">
+                                <items>
+                                    <Label text="Min. matches" />
+                                    <Slider fx:id="minMatchesTxtField" blockIncrement="1.0" majorTickUnit="2.0" max="50.0" minorTickCount="1" prefHeight="38.0" prefWidth="510.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                                  <Button fx:id="filterButton" mnemonicParsing="false" prefHeight="28.0" prefWidth="61.0" text="Filter" />
+                                    <Label fx:id="clusterCountLabel" prefHeight="27.0" prefWidth="64.0" />
+                                </items>
+                              </ToolBar>
+                              <ToolBar prefHeight="40.0" prefWidth="200.0">
+                                <items>
+                                    <CheckBox fx:id="sequenceCheckBox" mnemonicParsing="false" text="Only Sequence" />
+                                    <CheckBox fx:id="headerCheckBox" mnemonicParsing="false" text="ProNames" />
+                                    <Separator orientation="VERTICAL" prefHeight="29.0" prefWidth="14.0" />
+                                    <TextField fx:id="removeTextField" prefHeight="26.0" prefWidth="306.0" promptText="Enter protein name to remove or show" />
+                                  <Button fx:id="removeButton" disable="true" mnemonicParsing="false" text="Remove" />
+                                    <Button fx:id="showButton" disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Show" />
+                                    <Button fx:id="clearFiltersButton" disable="true" layoutX="602.0" layoutY="12.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Clear" />
+                                </items>
+                              </ToolBar>
+                           </children>
+                        </VBox>
+                     </top>
+                     <center>
+                        <TreeView fx:id="resultsTextArea" prefHeight="476.0" prefWidth="405.0" />
+                     </center>
+                  </BorderPane>
+               </content>
+            </Tab>
+            <Tab fx:id="conservedTab" disable="true" text="Conserved">
+               <content>
+                  <TreeView prefHeight="200.0" prefWidth="200.0" />
+               </content>
+               <content>
+                  <BorderPane>
+                     <center>
+                        <TreeView fx:id="conservedTreeView" prefHeight="200.0" prefWidth="738.0" />
+                     </center>
+                     <top>
+                        <VBox prefHeight="89.0" prefWidth="738.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <ToolBar disable="true" prefHeight="40.0" prefWidth="915.0">
+                                 <items>
+                                    <Label text="Min. matches" />
+                                    <Slider blockIncrement="1.0" majorTickUnit="2.0" max="50.0" minorTickCount="1" prefHeight="38.0" prefWidth="510.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                                    <Button mnemonicParsing="false" prefHeight="28.0" prefWidth="61.0" text="Filter" />
+                                    <Label fx:id="clusterCount2Label" prefHeight="27.0" prefWidth="64.0" />
+                                 </items>
+                              </ToolBar>
+                              <ToolBar prefHeight="40.0" prefWidth="200.0">
+                                 <items>
+                                    <CheckBox disable="true" mnemonicParsing="false" text="Only Sequence" />
+                                    <CheckBox fx:id="header2CheckBox" disable="true" mnemonicParsing="false" text="ProNames" />
+                                    <Separator orientation="VERTICAL" prefHeight="29.0" prefWidth="14.0" />
+                                    <TextField disable="true" prefHeight="26.0" prefWidth="306.0" promptText="Enter protein name to remove or show" />
+                                    <Button disable="true" mnemonicParsing="false" text="Remove" />
+                                    <Button disable="true" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Show" />
+                                    <Button disable="true" layoutX="602.0" layoutY="12.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="64.0" text="Clear" />
+                                 </items>
+                              </ToolBar>
+                           </children>
+                        </VBox>
+                     </top>
+                  </BorderPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
    </center>
    <top>
       <VBox prefHeight="75.0" prefWidth="600.0" BorderPane.alignment="CENTER">
@@ -148,10 +181,26 @@
                         <MenuItem fx:id="fullScreenMenuItem" mnemonicParsing="false" text="Full screen" />
                      </items>
                 </Menu>
-                  <Menu mnemonicParsing="false" text="Prediction">
+                  <Menu mnemonicParsing="false" text="Tools">
                     <items>
-                      <MenuItem fx:id="signalPMenuItem" disable="true" mnemonicParsing="false" text="SignalP6" />
-                        <MenuItem fx:id="deepTMHMMMenuItem" disable="true" mnemonicParsing="false" text="DeepTMHMM" />
+                        <Menu mnemonicParsing="false" text="Prediction">
+                          <items>
+                            <MenuItem fx:id="signalPMenuItem" disable="true" mnemonicParsing="false" text="SignalP6" />
+                              <MenuItem fx:id="deepTMHMMMenuItem" disable="true" mnemonicParsing="false" text="DeepTMHMM" />
+                          </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="MSA">
+                           <items>
+                              <MenuItem fx:id="jalViewMenuItem" disable="true" mnemonicParsing="false" text="JalView" />
+                              <MenuItem fx:id="msaViewerMenuItem" disable="true" mnemonicParsing="false" text="MSA Viewer" />
+                              <MenuItem fx:id="checkMSAMenuItem" disable="true" mnemonicParsing="false" text="Check MSA" />
+                           </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Filter">
+                           <items>
+                              <MenuItem fx:id="kmerMenuItem" disable="true" mnemonicParsing="false" text="Kmer " />
+                           </items>
+                        </Menu>
                     </items>
                   </Menu>
                 <Menu mnemonicParsing="false" text="Help">

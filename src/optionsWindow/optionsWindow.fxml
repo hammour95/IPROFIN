@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane prefHeight="484.0" prefWidth="421.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="optionsWindow.OptionsWindowController">
+   <bottom>
+      <ProgressBar fx:id="optionsProgressBar" prefHeight="20.0" prefWidth="456.0" progress="0.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <left>
+      <AnchorPane fx:id="SettingsPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="searchButton" layoutX="348.0" layoutY="424.0" mnemonicParsing="false" text="Search" />
+            <CheckBox fx:id="idAndCovCheckBox" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" selected="true" text="Optimize ID and COV values" />
+            <CheckBox fx:id="clusterPredictCheckBox" layoutX="14.0" layoutY="100.0" mnemonicParsing="false" selected="true" text="Cluster and predict with SignalP6" />
+            <CheckBox fx:id="kmerFilterCheckBox" layoutX="53.0" layoutY="131.0" mnemonicParsing="false" selected="true" text="Kmer Filter" />
+            <CheckBox fx:id="checkMSACheckBox" layoutX="14.0" layoutY="304.0" mnemonicParsing="false" selected="true" text="Check MSA" />
+            <CheckBox fx:id="confirmDeepTMCheckBox" layoutX="14.0" layoutY="375.0" mnemonicParsing="false" text="Confirm with DeepTMHMM" />
+            <RadioButton fx:id="highSensitiveRadioButton" layoutX="39.0" layoutY="49.0" mnemonicParsing="false" text="High Sensitive">
+               <toggleGroup>
+                  <ToggleGroup fx:id="sensitive" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="mediumSensitiveRadioButton" layoutX="163.0" layoutY="49.0" mnemonicParsing="false" selected="true" text="Medium Sensitive" toggleGroup="$sensitive" />
+            <RadioButton fx:id="lowSensitiveRadioButton" layoutX="305.0" layoutY="49.0" mnemonicParsing="false" text="Low Sensitive" toggleGroup="$sensitive" />
+            <TextField fx:id="kmerSizeTextField" layoutX="225.0" layoutY="143.0" prefHeight="26.0" prefWidth="90.0" text="4" />
+            <Label layoutX="163.0" layoutY="148.0" text="kmer Size" />
+            <Label layoutX="163.0" layoutY="328.0" text="Tolerance" />
+            <TextField fx:id="toleranceTextField" layoutX="225.0" layoutY="324.0" prefHeight="26.0" prefWidth="90.0" text="0" />
+            <Label layoutX="163.0" layoutY="174.0" text="Tolerance" />
+            <TextField fx:id="kmerToleranceTextField" layoutX="225.0" layoutY="170.0" prefHeight="26.0" prefWidth="90.0" text="0" />
+            <CheckBox fx:id="signalFilterCheckBox" layoutX="53.0" layoutY="206.0" mnemonicParsing="false" selected="true" text="Signal Filter (Keep)" />
+            <CheckBox fx:id="SPCheckBox" layoutX="76.0" layoutY="241.0" mnemonicParsing="false" selected="true" text="SP" />
+            <CheckBox fx:id="TATLIPOCheckBox" layoutX="185.0" layoutY="269.0" mnemonicParsing="false" selected="true" text="TATLIPO" />
+            <CheckBox fx:id="TATCheckBox" layoutX="185.0" layoutY="241.0" mnemonicParsing="false" selected="true" text="TAT" />
+            <CheckBox fx:id="otherCheckBox" layoutX="283.0" layoutY="269.0" mnemonicParsing="false" text="OTHER" />
+            <CheckBox fx:id="PILINCheckBox" layoutX="283.0" layoutY="241.0" mnemonicParsing="false" selected="true" text="PILIN" />
+            <CheckBox fx:id="LIPOCheckBox" layoutX="76.0" layoutY="269.0" mnemonicParsing="false" selected="true" text="LIPO" />
+         </children>
+      </AnchorPane>
+   </left>
+</BorderPane>
