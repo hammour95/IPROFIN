@@ -2,6 +2,10 @@ package model;
 
 import java.util.ArrayList;
 
+/**
+ * Class representing the Tool Diamond
+ * helps to get the right command to start the tool
+ */
 public class diamond {
 
     String path = "src/model/Diamond/diamond";
@@ -20,6 +24,10 @@ public class diamond {
     String matrix;
 
 
+    /**
+     * generates the command line to start DIAMOND
+     * @return command as String array
+     */
     public String[] getCommand(){
         ArrayList<String> command = new ArrayList<>();
 

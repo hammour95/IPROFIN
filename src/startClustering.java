@@ -4,11 +4,8 @@ import model.diamond;
 import model.processExecutor;
 import model.readFile;
 
-import java.awt.*;
 import java.io.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
@@ -158,7 +155,8 @@ public class startClustering {
                         " Parameters: minSeqId: " + minSeqId + " coverage: " +
                         coverage + " covMode: " + covMode);
 
-                showMMseqsPlainResults(controller);
+                // Drains the Heap memory
+                //showMMseqsPlainResults(controller);
             }
         }
         else if(method.equals("diamond")) {
@@ -235,6 +233,9 @@ public class startClustering {
 
     /**
      * Showing the result files in the plain results tab
+     * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+     * ++++ memory consuming too high have to be optimized ++++
+     * ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
      */
     public void showMMseqsPlainResults(WindowController controller) throws IOException {
         var serviceRep = new readFile("Results/cluster_rep_seq.fasta");
@@ -260,9 +261,9 @@ public class startClustering {
                 controller.getFlcTextArea().getItems().add(s);
             }
         });
-        Executors.newSingleThreadExecutor().submit(serviceFlc);
-        Executors.newSingleThreadExecutor().submit(serviceRep);
-        Executors.newSingleThreadExecutor().submit(serviceAdj);
+        serviceFlc.run();
+        serviceRep.run();
+        serviceAdj.run();
     }
 
     /**

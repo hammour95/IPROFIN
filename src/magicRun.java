@@ -1,12 +1,10 @@
 import javafx.scene.control.TreeItem;
-import model.signalpPrediction;
 import model.fastaParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-// TODO: options window and disable filter Items
 public class magicRun {
 
     WindowPresenter presenter;
@@ -102,8 +100,8 @@ public class magicRun {
             }
 
             for(var sequence: seqs) {
-                for(int i= 0; i < sequence.length()-kmerSize; i += kmerSize) {
-                    String kmer = sequence.substring(i, i+kmerSize+1);
+                for(int i= 0; i < sequence.length()-kmerSize; i++) {
+                    String kmer = sequence.substring(i, i+kmerSize);
 
                     if(hash.containsKey(kmer)) {
                         hash.replace(kmer, hash.get(kmer)+1);
@@ -136,6 +134,8 @@ public class magicRun {
         var children = root.getChildren();
 
         TreeItem<String> results = new TreeItem<>("Results");
+
+        ArrayList<TreeItem> toRemove = new ArrayList<>();
 
         for(var cluster: children) {
             // generating the MSA
@@ -180,7 +180,7 @@ public class magicRun {
 
             for(int z = 0; z < hits.length; z++) {
                 if(hits[z] == 'B') {
-                    pos.append(" - ").append(z+1);
+                    pos.append(" - ").append(z);
                     if(epi.length() >= 4) {
                         TreeItem<String> treeItem = new TreeItem<>(epi.append("\t").append(pos).toString());
                         header.getChildren().add(treeItem);
@@ -202,9 +202,21 @@ public class magicRun {
                     header.getChildren().add(treeItem);
                 }
             }
-            results.getChildren().add(header);
+            if(header.getChildren().size() > 2) {
+                header.valueProperty().bind(cluster.valueProperty());
+                results.getChildren().add(header);
+            }
+            else {
+                toRemove.add(cluster);
+            }
         }
+        for(var cluster:toRemove) {
+            children.remove(cluster);
+        }
+        presenter.numberOfClusters(controller); // update the Number of clusters label
+
         results.setExpanded(true);
+
         controller.getConservedTab().setDisable(false);
         controller.getConservedTreeView().setRoot(results);
         controller.getResultsPane().getSelectionModel().select(controller.getConservedTab());

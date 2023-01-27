@@ -6,6 +6,9 @@ import javafx.scene.Parent;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * this creates scene graph from a fxml file
+ */
 public class optionsWindowView {
     private final OptionsWindowController optionsController;
     private final Parent root;

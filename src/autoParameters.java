@@ -2,28 +2,29 @@ import javafx.application.Application;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point3D;
 import javafx.scene.*;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.Shape3D;
 import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
-import java.awt.event.MouseEvent;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+
+/**
+ * Basic optimal parameters finder
+ * tries all the combination of ID and COV and report the
+ * best one that maximize number of clusters that have
+ * the exact number of species.
+ * It generates also an interactive plot to check the
+ * combinations.
+ * (Slow... not used -> check "magicRun.java")
+ */
 public class autoParameters extends Application {
 
     ArrayList<Integer> clusters = new ArrayList<>();
@@ -116,7 +117,6 @@ public class autoParameters extends Application {
         saveParam();
 
     }
-
 
     private void checkParams(WindowPresenter presenter, WindowController controller) throws IOException {
 

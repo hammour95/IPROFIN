@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import model.*;
+import proteinExplorer.*;
 
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -25,27 +26,16 @@ public class WindowPresenter {
 
     ArrayList<String> input = new ArrayList<>();
     int spec;
-
-    //TODO: RegName changer MenuItem
     String RegName = "protein=";
-
-    fastaParser data = new fastaParser();
     HashMap<String, fastaParser.HeaderSequence> dataMap = new HashMap<>();
-
-    HashMap<String, String> deepTM = new HashMap<>();
-
     HashMap<String, String> signalP = new HashMap<>();
-
     HashMap<TreeItem<String>, String> clustersRes = new HashMap<TreeItem<String>, String>();
-    HashMap<TreeItem<String>, String> clustersCon = new HashMap<TreeItem<String>, String>();
-
-
     String method;
-
     String diamondDB;
-
     ArrayList<TreeItem<String>> toShow = new ArrayList<>();
     ArrayList<TreeItem<String>> toRemove = new ArrayList<>();
+
+    String sequence;
 
     public WindowPresenter(Stage stage, WindowController controller) {
 
@@ -141,7 +131,7 @@ public class WindowPresenter {
         controller.getOpenMenuItem().setOnAction(e-> {
             try {
                 openFile(stage, controller);
-                if(method != null && method.equals("linclust"))
+                if(method != null)
                     controller.getAutomaticButton().setDisable(false);
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
@@ -175,12 +165,9 @@ public class WindowPresenter {
         });
 
         controller.getSequenceCheckBox().setOnAction(e-> controller.getFilterButton().fire());
-        controller.getHeaderCheckBox().setOnAction(e-> {
-            onlyProName(controller, controller.getResultsTextArea().getRoot(), clustersRes);
-            if(controller.getConservedTreeView().getRoot() != null) {
-                onlyProName(controller, controller.getConservedTreeView().getRoot(), clustersCon);
-            }
-        });
+        controller.getHeaderCheckBox().setOnAction(e->
+            onlyProName(controller, controller.getResultsTextArea().getRoot(), clustersRes));
+
 
         controller.getAutomaticButton().setOnAction(e-> {
             try {
@@ -210,6 +197,9 @@ public class WindowPresenter {
                             controller.getMsaButton().setDisable(false);
                             controller.getMsaViewerMenuItem().setDisable(false);
                             controller.getJalViewMenuItem().setDisable(false);
+                            controller.getProteinViewerButton().setDisable(false);
+
+                            sequence = newValue.getChildren().get(0).getValue();
 
                             try {
                                 msa.update();
@@ -323,14 +313,13 @@ public class WindowPresenter {
 
             TextInputDialog textInputDialog = new TextInputDialog("4");
             textInputDialog.setHeaderText("Enter the Kmer Size");
-
             textInputDialog.showAndWait();
-            int kmer = Integer.parseInt(textInputDialog.getEditor().getText());
 
             TextInputDialog textInputDialog2 = new TextInputDialog("0");
             textInputDialog2.setHeaderText("Enter the Tolerance");
-
             textInputDialog2.showAndWait();
+
+
             int kmerSize = Integer.parseInt(textInputDialog.getEditor().getText());
             int kmerTol = Integer.parseInt(textInputDialog2.getEditor().getText());
 
@@ -352,8 +341,25 @@ public class WindowPresenter {
             }
         });
 
-        controller.getHeader2CheckBox().selectedProperty().bind(controller.getHeaderCheckBox().selectedProperty());
         controller.getClusterCount2Label().textProperty().bind(controller.getClusterCountLabel().textProperty());
+
+        controller.getSaveEpitopesMenuItem().setOnAction(e->{
+            if(controller.getConservedTreeView().getRoot() != null) {
+                saveEpitopes(stage, controller);
+            }
+            else{
+                controller.getInfoLabel().setText("No results to be saved yet");
+            }
+        });
+
+        controller.getProteinViewerButton().setOnAction(e-> {
+            ProteomExplorer proteomExplorer = new ProteomExplorer(sequence);
+            try {
+                proteomExplorer.start(new Stage());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+        });
     }
 
     /**
@@ -384,8 +390,11 @@ public class WindowPresenter {
      * specify the path to the directory of the fasta files
      */
     private void openFile(Stage stage, WindowController controller) throws IOException {
-        data.clear();
+        fastaParser data = new fastaParser();
+
         dataMap.clear();
+        input.clear();
+
         int count = 0;
         var directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open directory");
@@ -401,16 +410,28 @@ public class WindowPresenter {
                     if (file.getName().endsWith(".fasta")) {
                         this.input.add(file.getAbsolutePath());
                         count += 1;
-                        this.data.read(file.getAbsolutePath());
+                        data.read(file.getAbsolutePath());
                     }
                 }
             }
-            controller.getInfoLabel().setText(String.valueOf(count + " FastA files are loaded"));
+            // change the regName to match the annotation nuccore/bakta
+            String header = data.get(0).header();
+            String annotation = "";
+            if(header.split("protein=").length > 1){
+                annotation = "NucCore";
+                RegName = "protein=";
+            } else if (header.split("product=").length > 1) {
+                annotation = "Bakta";
+                RegName = "product=";
+            }
+
+            controller.getInfoLabel().setText(String.valueOf(count + " FastA files are loaded,   Annotation: " +
+                    annotation));
             this.spec = count;
         }
         controller.getMinMatchesTxtField().setMax(spec);
 
-        for(var HeaderSequence : this.data){
+        for(var HeaderSequence : data){
             String key = HeaderSequence.header().substring(4).split(" ")[0];
             this.dataMap.put(key, HeaderSequence);
         }
@@ -503,7 +524,7 @@ public class WindowPresenter {
                 }
             }
         }
-        if(!signalP.isEmpty()) {
+        if(!signalP.isEmpty() && !children.get(0).getValue().contains("SignalP")) {
             signalPUpdateTree(controller);
         }
     }
@@ -751,6 +772,32 @@ public class WindowPresenter {
         }
     }
 
+    private void saveEpitopes(Stage stage, WindowController controller) {
+        var DirectoryChooser = new DirectoryChooser();
+        DirectoryChooser.setTitle("Save epitopes as txt files");
+
+        var selectedDir = DirectoryChooser.showDialog(stage);
+        if (selectedDir != null)
+        {
+            try {
+                var treeRoot = controller.getConservedTreeView().getRoot();
+                var children = treeRoot.getChildren();
+                BufferedWriter br = new BufferedWriter(new FileWriter(selectedDir + "/epitopes.txt"));
+
+                for(var ch:children){
+                    br.write(ch.getValue() + "\n");
+                    for (var ch2 : ch.getChildren()) {
+                        br.write(ch2.getValue() + "\n");
+                    }
+                }
+                br.close();
+            }
+            catch (IOException e) {
+                controller.getInfoLabel().setText("ERROR: " + e.getMessage());
+            }
+        }
+    }
+
     public ArrayList<String> getInput() {
         return input;
     }
@@ -761,10 +808,6 @@ public class WindowPresenter {
 
     public String getRegName() {
         return RegName;
-    }
-
-    public fastaParser getData() {
-        return data;
     }
 
     public HashMap<String, fastaParser.HeaderSequence> getDataMap() {

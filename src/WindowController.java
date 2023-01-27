@@ -229,6 +229,15 @@ public class WindowController {
     @FXML
     private CheckBox header2CheckBox;
 
+    @FXML
+    private MenuItem saveEpitopesMenuItem;
+
+    @FXML
+    private MenuItem PDBStructureMenuItem;
+
+    @FXML
+    private Button proteinViewerButton;
+
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
     }
@@ -529,4 +538,15 @@ public class WindowController {
         return clusterCount2Label;
     }
 
+    public MenuItem getSaveEpitopesMenuItem() {
+        return saveEpitopesMenuItem;
+    }
+
+    public MenuItem getPDBStructureMenuItem() {
+        return PDBStructureMenuItem;
+    }
+
+    public Button getProteinViewerButton() {
+        return proteinViewerButton;
+    }
 }

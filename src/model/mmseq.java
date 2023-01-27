@@ -3,6 +3,10 @@ package model;
 import java.util.ArrayList;
 import java.util.Collections;
 
+/**
+ * Class representing the Tool MMSeqs
+ * helps to get the right command to start the tool
+ */
 public class mmseq {
     String path = "./src/model/mmseqs/bin/mmseqs";
     String mode = "easy-linclust";

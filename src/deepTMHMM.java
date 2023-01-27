@@ -7,6 +7,14 @@ import java.util.ArrayList;
 
 import model.processExecutor;
 
+/**
+ * Starting the prediction Tool DeepTMHMM
+ * First, from the selected cluster, the header and
+ * representative sequence will be written in a FastA file
+ * Then, using the commandExecuter
+ * python script will be executed to make the prediction
+ * on DTU "Technical University of Denmark" Servers
+ */
 public class deepTMHMM extends Service<String> {
     WindowController controller;
 

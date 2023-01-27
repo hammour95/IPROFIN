@@ -5,6 +5,10 @@ import javafx.concurrent.Task;
 
 import java.util.ArrayList;
 
+/**
+ * Class executing the prediction of signal peptides using SignalP6
+ * as a Service
+ */
 public class signalpPrediction extends Service<String> {
 
     @Override

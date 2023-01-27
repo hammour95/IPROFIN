@@ -1,12 +1,15 @@
 package model;
 
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * Basic file reader
+ * returns the content of a file as a String
+ */
 public class readFile extends Task<String> {
     String fileName;
     public readFile(String fileName) throws IOException {

@@ -8,6 +8,12 @@ import optionsWindow.OptionsWindowController;
 import java.io.IOException;
 
 
+/**
+ * The options window presenter
+ * This is where we communicate between the optionsWindow and
+ * the main Tool IProFin
+ *
+ */
 public class OptionsWindowPresenter {
 
     double accuracy;
@@ -61,8 +67,7 @@ public class OptionsWindowPresenter {
                         signalFilter(optionsWindowController, controller);
 
                         // CHECK MSA
-                        if(optionsWindowController.getCheckMSACheckBox().isSelected() &&
-                        !optionsWindowController.getCheckMSACheckBox().isDisabled()) {
+                        if(optionsWindowController.getCheckMSACheckBox().isSelected()) {
                             magic.checkMSA(MSATolerance);
                         }
 

@@ -1,31 +1,29 @@
 import javafx.application.Application;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * User interface to represent the results of DeepTMHMM
+ * ++++ Still basic ++++
+ * reads the results file and
+ * shows them in a gridView
+ */
 public class deepTMHMMStarter extends Application {
 
     WindowController controller;
-
     BorderPane borderPane;
-
     ScrollPane scrollPane;
-
     GridPane gridPane;
     Label label;
 
@@ -52,7 +50,6 @@ public class deepTMHMMStarter extends Application {
             borderPane.setCenter(scrollPane);
 
             try {
-                StringBuilder text = new StringBuilder();
                 BufferedReader reader = new BufferedReader(new FileReader(ResPath));
 
                 String line;

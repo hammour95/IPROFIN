@@ -5,11 +5,17 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import model.processExecutor;
-import model.fastaParser;
 
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * Multi Sequence Alignment
+ * a class that get the selection from the results Window
+ * export the cluster to a FastA file
+ * then do the MSA using Clustal
+ * and represent the MSA using "MSAViewer"
+ */
 public class MSA extends Application {
 
     WindowController controller;
@@ -19,6 +25,15 @@ public class MSA extends Application {
     WebEngine webEngine;
     ArrayList<String> entries = new ArrayList<>();
 
+    /**
+     * Using a webView MSAViewer can be started
+     *
+     * @param primaryStage the primary stage for this application, onto which
+     * the application scene can be set.
+     * Applications may create other stages, if needed, but they will not be
+     * primary stages.
+     * @throws Exception
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -42,6 +57,12 @@ public class MSA extends Application {
         this.controller = controller;
     }
 
+    /**
+     * update the MSA if the selection was changed
+     * First. by importing the members of the cluster into
+     * an arrayList and call the alignment class
+     * @throws IOException
+     */
     public void update() throws IOException {
         var selected = controller.getResultsTextArea().getSelectionModel().getSelectedItem();
         entries.clear();
@@ -56,7 +77,16 @@ public class MSA extends Application {
             webEngine.reload();
     }
 
-
+    /**
+     * This class export the selected cluster into fastA file
+     * Then starts clustal to do the alignment
+     * and reads the results
+     *
+     * The results will be also exported as a variable in javaScript file
+     * which can be used in MSAViewer
+     *
+     * @throws IOException
+     */
     public void alignCluster() throws IOException {
         BufferedWriter wr = new BufferedWriter(new FileWriter("Results/cluster.fasta"));
         for(var i: entries) {
