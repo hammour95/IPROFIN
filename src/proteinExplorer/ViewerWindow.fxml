@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="640.0" prefWidth="955.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proteinExplorer.ViewerWindowController">
+   <children>
+      <BorderPane prefHeight="622.0" prefWidth="898.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <SplitPane dividerPositions="0.2502623294858342" BorderPane.alignment="CENTER">
+               <items>
+                  <TabPane fx:id="tabsTabPane" focusTraversable="false" prefHeight="520.0" prefWidth="264.0" rotateGraphic="true" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <Tab text="Tools">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label disable="true" layoutX="11.0" layoutY="14.0" prefHeight="22.0" prefWidth="212.0" text="Search for similar Structure" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Label>
+                                    <Separator layoutY="35.0" prefHeight="0.0" prefWidth="200.0" />
+                                    <Button fx:id="searchButton" layoutX="154.0" layoutY="49.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="65.0" text="Search" />
+                                    <ListView fx:id="searchListView" layoutX="8.0" layoutY="49.0" prefHeight="200.0" prefWidth="128.0" />
+                                    <Slider fx:id="similaritySlider" blockIncrement="1.0" layoutX="165.0" layoutY="91.0" orientation="VERTICAL" prefHeight="158.0" prefWidth="44.0" showTickLabels="true" showTickMarks="true" value="70.0" />
+                                    <Label disable="true" layoutX="147.0" layoutY="249.0" prefHeight="22.0" prefWidth="80.0" text="Similarity (%)" textAlignment="CENTER" />
+                                    <Label disable="true" layoutX="12.0" layoutY="306.0" text="Get PDB from RCSB" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Label>
+                                    <Separator layoutX="11.0" layoutY="303.0" prefHeight="0.0" prefWidth="200.0" />
+                                    <TextField fx:id="getIdTextField" layoutX="8.0" layoutY="340.0" prefHeight="26.0" prefWidth="130.0" />
+                                    <Button fx:id="getPdbButton" layoutX="156.0" layoutY="340.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="71.0" text="Get  PDB" />
+                                    <Button fx:id="savePdbButton" disable="true" layoutX="156.0" layoutY="374.0" mnemonicParsing="false" text="Save PDB" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </Tab>
+                      <Tab text="View">
+                           <content>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <CheckBox fx:id="ballsCheckButton" layoutX="18.0" layoutY="80.0" selected="true" text="Balls" />
+                                    <CheckBox fx:id="sticksCheckButton" layoutX="18.0" layoutY="119.0" selected="true" text="Sticks" />
+                                    <Slider fx:id="scaleSlider" blockIncrement="0.001" layoutX="83.0" layoutY="81.0" max="0.02" prefHeight="16.0" prefWidth="90.0" value="0.005" />
+                                    <RadioButton fx:id="ballsAndSticksRadioButton" layoutX="14.0" layoutY="45.0" mnemonicParsing="false" selected="true" text="Balls and Sticks">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="Vis" />
+                                       </toggleGroup>
+                                    </RadioButton>
+                                    <Separator layoutY="150.0" prefHeight="0.0" prefWidth="200.0" />
+                                    <RadioButton fx:id="ribbonsRadioButton" layoutX="12.0" layoutY="164.0" mnemonicParsing="false" text="Ribbons" toggleGroup="$Vis" />
+                                    <Slider fx:id="sticksScaleBar" blockIncrement="0.1" layoutX="83.0" layoutY="120.0" max="2.0" prefHeight="16.0" prefWidth="90.0" value="1.0" />
+                                    <Separator layoutY="36.0" prefHeight="0.0" prefWidth="200.0" />
+                                    <Separator layoutY="194.0" prefHeight="0.0" prefWidth="200.0" />
+                                    <Label disable="true" layoutX="11.0" layoutY="9.0" text="Visualization" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Label>
+                                    <Label disable="true" layoutX="11.0" layoutY="206.0" text="Coloring" textAlignment="CENTER">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Label>
+                                    <RadioButton fx:id="atomsRadioButton" layoutX="26.0" layoutY="238.0" mnemonicParsing="false" selected="true" text="Atoms">
+                                       <toggleGroup>
+                                          <ToggleGroup fx:id="Color" />
+                                       </toggleGroup>
+                                    </RadioButton>
+                                    <RadioButton fx:id="aminoAcidRadioButton" layoutX="26.0" layoutY="268.0" mnemonicParsing="false" text="Amino acids" toggleGroup="$Color" />
+                                    <RadioButton fx:id="structureRadioButton" layoutX="26.0" layoutY="300.0" mnemonicParsing="false" text="Structure" toggleGroup="$Color" />
+                                 </children>
+                              </AnchorPane>
+                           </content>
+                      </Tab>
+                        <Tab text="Info">
+                          <content>
+                              <TreeView fx:id="infoTreeView" prefHeight="200.0" prefWidth="200.0" />
+                          </content>
+                        </Tab>
+                    </tabs>
+                  </TabPane>
+                  <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
+                     <tabs>
+                        <Tab fx:id="viewerTab" text="Viewer">
+                           <content>
+                              <StackPane>
+                                 <children>
+                                    <Pane fx:id="centerPane" />
+                                 </children>
+                              </StackPane>
+                           </content>
+                        </Tab>
+                        <Tab text="PDB Reader">
+                           <content>
+                              <StackPane>
+                                 <children>
+                                    <TextArea fx:id="pdbTextArea" editable="false" focusTraversable="false" />
+                                 </children>
+                              </StackPane>
+                           </content>
+                        </Tab>
+                        <Tab text="Statistics">
+                          <content>
+                              <TabPane tabClosingPolicy="UNAVAILABLE">
+                                 <tabs>
+                                    <Tab text="Basic Info">
+                                       <content>
+                                          <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                             <children>
+                                                <Label fx:id="chainsLabel" layoutX="14.0" layoutY="64.0" prefHeight="17.0" prefWidth="255.0" text="Chains:">
+                                                   <font>
+                                                      <Font size="18.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label fx:id="monomersLabel" layoutX="14.0" layoutY="101.0" prefHeight="23.0" prefWidth="257.0" text="Monomers:">
+                                                   <font>
+                                                      <Font size="18.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label fx:id="atomsLabel" layoutX="14.0" layoutY="138.0" prefHeight="23.0" prefWidth="255.0" text="Atoms:">
+                                                   <font>
+                                                      <Font size="18.0" />
+                                                   </font>
+                                                </Label>
+                                                <Label fx:id="complexLabel" layoutX="15.0" layoutY="27.0" prefHeight="28.0" prefWidth="694.0" textAlignment="CENTER">
+                                                   <font>
+                                                      <Font size="18.0" />
+                                                   </font>
+                                                </Label>
+                                             </children>
+                                          </AnchorPane>
+                                       </content>
+                                    </Tab>
+                                    <Tab text="Amino Acids">
+                                      <content>
+                                          <BorderPane>
+                                             <center>
+                                                <Pane fx:id="pieAminoAcidsPane" prefHeight="200.0" prefWidth="200.0" />
+                                             </center>
+                                          </BorderPane>
+                                      </content>
+                                    </Tab>
+                                    <Tab text="Secondary Structure">
+                                      <content>
+                                          <BorderPane>
+                                             <center>
+                                                <Pane fx:id="pieStructurePane" prefHeight="200.0" prefWidth="200.0" />
+                                             </center>
+                                          </BorderPane>
+                                      </content>
+                                    </Tab>
+                                 </tabs>
+                              </TabPane>
+                          </content>
+                        </Tab>
+                     </tabs>
+                  </TabPane>
+               </items>
+            </SplitPane>
+         </center>
+         <top>
+            <VBox BorderPane.alignment="CENTER">
+               <children>
+                  <MenuBar>
+                     <menus>
+                        <Menu mnemonicParsing="false" text="File">
+                           <items>
+                              <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" text="Close">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                                 </accelerator>
+                              </MenuItem>
+                           </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Edit">
+                           <items>
+                              <MenuItem fx:id="copyMenuItem" mnemonicParsing="false" text="Copy" />
+                              <MenuItem fx:id="clearSelectionMenuItem" mnemonicParsing="false" text="Clear selection" />
+                              <MenuItem fx:id="undoMenuItem" mnemonicParsing="false" text="Undo">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="Z" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                                 </accelerator>
+                              </MenuItem>
+                              <MenuItem fx:id="redoMenuItem" mnemonicParsing="false" text="Redo">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="Y" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                                 </accelerator>
+                              </MenuItem>
+                           </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="View">
+                          <items>
+                              <CheckMenuItem fx:id="darkModeMenuItem" mnemonicParsing="false" text="Dark Mode" />
+                              <MenuItem fx:id="fullScreenMenuItem" mnemonicParsing="false" text="Full Screen" />
+                          </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Help">
+                           <items>
+                              <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About">
+                                 <accelerator>
+                                    <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
+                                 </accelerator>
+                              </MenuItem>
+                           </items>
+                        </Menu>
+                     </menus>
+                  </MenuBar>
+                  <TitledPane alignment="CENTER" contentDisplay="CENTER" expanded="false" prefHeight="26.0" prefWidth="428.0" text="Sequence">
+                     <content>
+                        <ScrollPane>
+                           <content>
+                              <ListView fx:id="sequenceListView" orientation="HORIZONTAL" prefHeight="40.0" prefWidth="930.0" />
+                           </content>
+                        </ScrollPane>
+                     </content>
+                  </TitledPane>
+               </children>
+            </VBox>
+         </top>
+         <bottom>
+            <ToolBar prefHeight="0.0" prefWidth="963.0" BorderPane.alignment="CENTER">
+               <items>
+                  <Label fx:id="infoLabel" text="Info" />
+               </items>
+            </ToolBar>
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>
