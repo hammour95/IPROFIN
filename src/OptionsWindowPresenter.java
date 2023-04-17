@@ -29,7 +29,6 @@ public class OptionsWindowPresenter {
         integerOnly(optionsWindowController.getKmerToleranceTextField());
         integerOnly(optionsWindowController.getKmerSizeTextField());
 
-
         var magic = new magicRun(presenter, controller);
 
         optionsWindowController.getSearchButton().setOnAction(e->{
@@ -37,21 +36,37 @@ public class OptionsWindowPresenter {
 
             optionsWindowController.getSettingsPane().setDisable(true);
 
+            // Remove Paralogs
+            if(optionsWindowController.getParalogsCheckBox().isSelected()) {
+                controller.getRemoveParalogsMenuItem().fire();
+            }
+
+            // Optimize ID and Cov
             if(optionsWindowController.getIdAndCovCheckBox().isSelected()) {
                 try {
                     magic.findOptimalParameters(accuracy);
+                    controller.getStartButton().fire();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
 
+            // do the clustering
+            controller.getStartButton().fire();
+
+            // Exclude Cluster that not share at least 1 kmer
+            if(optionsWindowController.getKmerFilterCheckBox().isSelected()) {
+                magic.kmerSearch(kmerSize, kmerTolerance);
+            }
+
+            // make localization prediction
+            if(optionsWindowController.getLocPredCheckBox().isSelected()) {
+                presenter.locPred(controller);
+                localizationFilter(optionsWindowController, controller);
+            }
+
+            // Predict Signals with SignalP6
             if(optionsWindowController.getClusterPredictCheckBox().isSelected()) {
-                controller.getStartButton().fire();
-
-                if(optionsWindowController.getKmerFilterCheckBox().isSelected()) {
-                    magic.kmerSearch(kmerSize, kmerTolerance);
-                }
-
                 presenter.saveClustSignal(controller);
 
                 var signalP = new signalpPrediction();
@@ -82,6 +97,13 @@ public class OptionsWindowPresenter {
                 signalP.start();
             }
             if (!optionsWindowController.getClusterPredictCheckBox().isSelected()) {
+                if(optionsWindowController.getCheckMSACheckBox().isSelected()) {
+                    try {
+                        magic.checkMSA(MSATolerance);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
                 optionsWindowController.getSettingsPane().setDisable(false);
                 stage.close();
             }
@@ -104,15 +126,12 @@ public class OptionsWindowPresenter {
                 optionsWindowController.getIdAndCovCheckBox().selectedProperty().not()
         );
 
-        // Cluster and predict
-        optionsWindowController.getKmerFilterCheckBox().disableProperty().bind(
-                optionsWindowController.getClusterPredictCheckBox().selectedProperty().not()
-        );
+        // Kmer Check
         optionsWindowController.getKmerSizeTextField().disableProperty().bind(
-                optionsWindowController.getClusterPredictCheckBox().selectedProperty().not()
+                optionsWindowController.getKmerFilterCheckBox().selectedProperty().not()
         );
         optionsWindowController.getKmerToleranceTextField().disableProperty().bind(
-                optionsWindowController.getClusterPredictCheckBox().selectedProperty().not()
+                optionsWindowController.getKmerFilterCheckBox().selectedProperty().not()
         );
 
 
@@ -173,12 +192,32 @@ public class OptionsWindowPresenter {
         );
 
 
-        optionsWindowController.getCheckMSACheckBox().disableProperty().bind(
-                optionsWindowController.getClusterPredictCheckBox().selectedProperty().not()
-        );
-
         optionsWindowController.getConfirmDeepTMCheckBox().disableProperty().bind(
                 optionsWindowController.getCheckMSACheckBox().selectedProperty().not()
+        );
+
+        optionsWindowController.getLocalizationFilterCheckBox().disableProperty().bind(
+                optionsWindowController.getLocPredCheckBox().selectedProperty().not()
+        );
+
+        optionsWindowController.getCytoCheckBox().disableProperty().bind(
+                optionsWindowController.getLocPredCheckBox().selectedProperty().not()
+        );
+
+        optionsWindowController.getCytoMemCheckBox().disableProperty().bind(
+                optionsWindowController.getLocPredCheckBox().selectedProperty().not()
+        );
+
+        optionsWindowController.getPeriCheckBox().disableProperty().bind(
+                optionsWindowController.getLocPredCheckBox().selectedProperty().not()
+        );
+
+        optionsWindowController.getOuterCheckBox().disableProperty().bind(
+                optionsWindowController.getLocPredCheckBox().selectedProperty().not()
+        );
+
+        optionsWindowController.getExtraCheckBox().disableProperty().bind(
+                optionsWindowController.getLocPredCheckBox().selectedProperty().not()
         );
     }
 
@@ -237,34 +276,70 @@ public class OptionsWindowPresenter {
     private void signalFilter(OptionsWindowController optionsWindowController, WindowController controller) {
         if(optionsWindowController.getSignalFilterCheckBox().isSelected()) {
             if(!optionsWindowController.getOtherCheckBox().isSelected()) {
-                controller.getRemoveTextField().setText("SignalP6= OTHER");
+                controller.getRemoveTextField().setText("SignalP6= OTHER ");
                 controller.getRemoveButton().fire();
             }
 
             if(!optionsWindowController.getPILINCheckBox().isSelected()) {
-                controller.getRemoveTextField().setText("SignalP6= PILIN");
+                controller.getRemoveTextField().setText("SignalP6= PILIN ");
                 controller.getRemoveButton().fire();
             }
 
             if(!optionsWindowController.getTATCheckBox().isSelected()) {
-                controller.getRemoveTextField().setText("SignalP6= TAT");
+                controller.getRemoveTextField().setText("SignalP6= TAT ");
                 controller.getRemoveButton().fire();
             }
 
             if(!optionsWindowController.getTATLIPOCheckBox().isSelected()) {
-                controller.getRemoveTextField().setText("SignalP6= TATLIPO");
+                controller.getRemoveTextField().setText("SignalP6= TATLIPO ");
                 controller.getRemoveButton().fire();
             }
 
             if(!optionsWindowController.getSPCheckBox().isSelected()) {
-                controller.getRemoveTextField().setText("SignalP6= SP");
+                controller.getRemoveTextField().setText("SignalP6= SP ");
                 controller.getRemoveButton().fire();
             }
 
             if(!optionsWindowController.getLIPOCheckBox().isSelected()) {
-                controller.getRemoveTextField().setText("SignalP6= LIPO");
+                controller.getRemoveTextField().setText("SignalP6= LIPO ");
                 controller.getRemoveButton().fire();
             }
+            controller.getRemoveTextField().setText("");
+        }
+    }
+
+    /**
+     * remove unwanted protein localizations from the results
+     * @param optionsWindowController: the controller of the settings
+     * @param controller: The main Controller
+     */
+    private void localizationFilter(OptionsWindowController optionsWindowController, WindowController controller) {
+        if (optionsWindowController.getLocalizationFilterCheckBox().isSelected()) {
+            if (!optionsWindowController.getCytoCheckBox().isSelected()) {
+                controller.getRemoveTextField().setText("[Localization: cytoplasmic]");
+                controller.getRemoveButton().fire();
+            }
+
+            if (!optionsWindowController.getCytoMemCheckBox().isSelected()) {
+                controller.getRemoveTextField().setText("[Localization: cytoplasmicmembrane]");
+                controller.getRemoveButton().fire();
+            }
+
+            if (!optionsWindowController.getPeriCheckBox().isSelected()) {
+                controller.getRemoveTextField().setText("[Localization: periplasmic]");
+                controller.getRemoveButton().fire();
+            }
+
+            if (!optionsWindowController.getOuterCheckBox().isSelected()) {
+                controller.getRemoveTextField().setText("[Localization: outermembrane]");
+                controller.getRemoveButton().fire();
+            }
+
+            if (!optionsWindowController.getExtraCheckBox().isSelected()) {
+                controller.getRemoveTextField().setText("[Localization: extracellular]");
+                controller.getRemoveButton().fire();
+            }
+
             controller.getRemoveTextField().setText("");
         }
     }

@@ -78,6 +78,30 @@ public class OptionsWindowController {
     @FXML
     private AnchorPane SettingsPane;
 
+    @FXML
+    private CheckBox paralogsCheckBox;
+
+    @FXML
+    private CheckBox locPredCheckBox;
+
+    @FXML
+    private CheckBox localizationFilterCheckBox;
+
+    @FXML
+    private CheckBox cytoCheckBox;
+
+    @FXML
+    private CheckBox cytoMemCheckBox;
+
+    @FXML
+    private CheckBox periCheckBox;
+
+    @FXML
+    private CheckBox outerCheckBox;
+
+    @FXML
+    private CheckBox extraCheckBox;
+
     public CheckBox getCheckMSACheckBox() {
         return checkMSACheckBox;
     }
@@ -164,5 +188,37 @@ public class OptionsWindowController {
 
     public AnchorPane getSettingsPane() {
         return SettingsPane;
+    }
+
+    public CheckBox getParalogsCheckBox() {
+        return paralogsCheckBox;
+    }
+
+    public CheckBox getLocPredCheckBox() {
+        return locPredCheckBox;
+    }
+
+    public CheckBox getCytoCheckBox() {
+        return cytoCheckBox;
+    }
+
+    public CheckBox getCytoMemCheckBox() {
+        return cytoMemCheckBox;
+    }
+
+    public CheckBox getExtraCheckBox() {
+        return extraCheckBox;
+    }
+
+    public CheckBox getLocalizationFilterCheckBox() {
+        return localizationFilterCheckBox;
+    }
+
+    public CheckBox getOuterCheckBox() {
+        return outerCheckBox;
+    }
+
+    public CheckBox getPeriCheckBox() {
+        return periCheckBox;
     }
 }
