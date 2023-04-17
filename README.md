@@ -19,7 +19,7 @@ Whether you're a bioinformatics researcher, a scientist, or a student, IPROFIN i
 - JavaFX 19
 
 Download The trained SVM model for the localization prediction form:  
-https://1drv.ms/f/s!AmL9JchooXjA6BWxH5hLz4400hGX?e=hr0fBZand 
+https://1drv.ms/f/s!AmL9JchooXjA6BWxH5hLz4400hGX?e=hr0fBZ 
 copy it to the main folder
 
 ## Used Tools
