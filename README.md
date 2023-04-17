@@ -13,6 +13,15 @@ The tool is designed to be user-friendly and efficient, with a streamlined pipel
 
 Whether you're a bioinformatics researcher, a scientist, or a student, IPROFIN is an essential tool for analyzing protein of different species and gaining insights into the presence of OMPs and conserved regions.
 
+## **Dependencies and Building**:
+
+- JDK 19+
+- JavaFX 19
+
+Download The trained SVM model for the localization prediction form:  
+https://1drv.ms/u/s!AmL9JchooXjA6BYeH4Bd7t_S37Pj?e=vslqyQ
+and copy it to the main folder
+
 ## Used Tools
 
 | Name         | Version       |
