@@ -49,29 +49,6 @@
                   <TextArea fx:id="stdOutTextArea" editable="false" prefHeight="200.0" prefWidth="200.0" />
             </content>
           </Tab>
-          <Tab text="Plain Results">
-               <content>
-                  <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
-                    <tabs>
-                      <Tab text="Representatives">
-                           <content>
-                              <ListView fx:id="representativesTextArea" prefHeight="200.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
-                      <Tab text="FASTA-like per cluster">
-                           <content>
-                              <ListView fx:id="flcTextArea" prefHeight="200.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
-                        <Tab text="Adjecency list">
-                           <content>
-                              <ListView fx:id="adjecencyListTextArea" prefHeight="200.0" prefWidth="200.0" />
-                           </content>
-                        </Tab>
-                    </tabs>
-                  </TabPane>
-               </content>
-          </Tab>
             <Tab fx:id="resultsTab" text="Results">
                <content>
                   <BorderPane>
@@ -184,25 +161,20 @@
                 </Menu>
                   <Menu mnemonicParsing="false" text="Tools">
                     <items>
-                        <Menu mnemonicParsing="false" text="Prediction">
-                          <items>
-                            <MenuItem fx:id="signalPMenuItem" disable="true" mnemonicParsing="false" text="SignalP6" />
-                              <MenuItem fx:id="deepTMHMMMenuItem" disable="true" mnemonicParsing="false" text="DeepTMHMM" />
-                              <MenuItem fx:id="PDBStructureMenuItem" disable="true" mnemonicParsing="false" text="PDB Structure " />
-                          </items>
-                        </Menu>
                         <Menu mnemonicParsing="false" text="MSA">
                            <items>
                               <MenuItem fx:id="jalViewMenuItem" disable="true" mnemonicParsing="false" text="JalView" />
                               <MenuItem fx:id="msaViewerMenuItem" disable="true" mnemonicParsing="false" text="MSA Viewer" />
-                              <MenuItem fx:id="checkMSAMenuItem" disable="true" mnemonicParsing="false" text="Check MSA" />
+                              <MenuItem fx:id="checkMSAMenuItem" disable="true" mnemonicParsing="false" text="Find Conserved Regions" />
                            </items>
                         </Menu>
-                        <Menu mnemonicParsing="false" text="Filter">
-                           <items>
-                              <MenuItem fx:id="kmerMenuItem" disable="true" mnemonicParsing="false" text="Kmer " />
-                           </items>
-                        </Menu>
+                        <MenuItem fx:id="removeParalogsMenuItem" mnemonicParsing="false" text="Remove Paralogs" />
+                        <MenuItem fx:id="excludeSpecieMenuItem" mnemonicParsing="false" text="Exclude Specie" />
+                        <MenuItem fx:id="kmerMenuItem" disable="true" mnemonicParsing="false" text="Prefiltering (kmer)" />
+                        <MenuItem fx:id="locPredMenuItem" mnemonicParsing="false" text="Localization Predictor" />
+                      <MenuItem fx:id="signalPMenuItem" disable="true" mnemonicParsing="false" text="SignalP6" />
+                        <MenuItem fx:id="deepTMHMMMenuItem" disable="true" mnemonicParsing="false" text="DeepTMHMM" />
+                        <MenuItem fx:id="PDBStructureMenuItem" disable="true" mnemonicParsing="false" text="PDB Structure " />
                     </items>
                   </Menu>
                 <Menu mnemonicParsing="false" text="Help">
@@ -242,7 +214,7 @@
                         </ImageView>
                      </graphic>
                   </Button>
-                  <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="15.0" />
+                  <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="18.0" />
                   <Button fx:id="linclustButton" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
                      <graphic>
                         <ImageView fitHeight="59.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
@@ -270,7 +242,7 @@
                         </ImageView>
                      </graphic>
                   </Button>
-                  <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="10.0" />
+                  <Separator orientation="VERTICAL" prefHeight="67.0" prefWidth="17.0" />
                   <Button fx:id="automaticButton" disable="true" layoutX="450.0" layoutY="10.0" mnemonicParsing="false" prefHeight="69.0" prefWidth="80.0">
                      <graphic>
                         <ImageView fitHeight="52.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
@@ -295,7 +267,7 @@
                         <Font size="16.0" />
                      </font>
                   </Button>
-                  <Separator layoutX="514.0" layoutY="10.0" orientation="VERTICAL" prefHeight="67.0" prefWidth="29.0" />
+                  <Separator layoutX="514.0" layoutY="10.0" orientation="VERTICAL" prefHeight="67.0" prefWidth="22.0" />
                 <Button fx:id="startButton" mnemonicParsing="false" prefHeight="70.0" prefWidth="80.0">
                      <graphic>
                         <ImageView fitHeight="58.0" fitWidth="77.0" pickOnBounds="true" preserveRatio="true">
@@ -380,4 +352,33 @@
          </children>
       </AnchorPane>
    </left>
+   <right>
+      <TabPane disable="true" prefHeight="638.0" prefWidth="0.0" tabClosingPolicy="UNAVAILABLE" visible="false" BorderPane.alignment="CENTER">
+        <tabs>
+          <Tab disable="true" text="Plain Results">
+               <content>
+                  <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                      <Tab text="Representatives">
+                           <content>
+                              <ListView fx:id="representativesTextArea" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                        </Tab>
+                      <Tab text="FASTA-like per cluster">
+                           <content>
+                              <ListView fx:id="flcTextArea" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                        </Tab>
+                        <Tab text="Adjecency list">
+                           <content>
+                              <ListView fx:id="adjecencyListTextArea" prefHeight="200.0" prefWidth="200.0" />
+                           </content>
+                        </Tab>
+                    </tabs>
+                  </TabPane>
+               </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </right>
 </BorderPane>

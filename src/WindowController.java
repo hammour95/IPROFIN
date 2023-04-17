@@ -238,6 +238,15 @@ public class WindowController {
     @FXML
     private Button proteinViewerButton;
 
+    @FXML
+    private MenuItem removeParalogsMenuItem;
+
+    @FXML
+    private MenuItem excludeSpecieMenuItem;
+
+    @FXML
+    private MenuItem locPredMenuItem;
+
     public MenuItem getAboutMenuItem() {
         return aboutMenuItem;
     }
@@ -548,5 +557,17 @@ public class WindowController {
 
     public Button getProteinViewerButton() {
         return proteinViewerButton;
+    }
+
+    public MenuItem getRemoveParalogsMenuItem() {
+        return removeParalogsMenuItem;
+    }
+
+    public MenuItem getExcludeSpecieMenuItem() {
+        return excludeSpecieMenuItem;
+    }
+
+    public MenuItem getLocPredMenuItem() {
+        return locPredMenuItem;
     }
 }

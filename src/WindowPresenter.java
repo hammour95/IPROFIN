@@ -360,6 +360,24 @@ public class WindowPresenter {
                 throw new RuntimeException(ex);
             }
         });
+
+        controller.getRemoveParalogsMenuItem().setOnAction(e-> {
+            try {
+                removeParalogs(controller);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        controller.getExcludeSpecieMenuItem().setOnAction(e->{
+            try {
+                excludeSpec(stage, controller);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        controller.getLocPredMenuItem().setOnAction(e->locPred(controller));
     }
 
     /**
@@ -390,16 +408,20 @@ public class WindowPresenter {
      * specify the path to the directory of the fasta files
      */
     private void openFile(Stage stage, WindowController controller) throws IOException {
-        fastaParser data = new fastaParser();
-
-        dataMap.clear();
-        input.clear();
-
-        int count = 0;
         var directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open directory");
 
         var selectedDirectory = directoryChooser.showDialog(stage);
+        importFiles(controller, selectedDirectory);
+    }
+
+    private void importFiles(WindowController controller, File selectedDirectory) throws IOException {
+        fastaParser data = new fastaParser();
+        int count = 0;
+
+        dataMap.clear();
+        input.clear();
+
         if (selectedDirectory != null)
         {
             controller.getInfoLabel().setText("empty");
@@ -407,7 +429,8 @@ public class WindowPresenter {
 
             if(files != null) {
                 for (File file : files) {
-                    if (file.getName().endsWith(".fasta")) {
+                    if (file.getName().endsWith(".fasta") || file.getName().endsWith(".fa") ||
+                            file.getName().endsWith(".faa")) {
                         this.input.add(file.getAbsolutePath());
                         count += 1;
                         data.read(file.getAbsolutePath());
@@ -424,6 +447,9 @@ public class WindowPresenter {
                 annotation = "Bakta";
                 RegName = "product=";
             }
+            else{
+                RegName = " ";
+            }
 
             controller.getInfoLabel().setText(String.valueOf(count + " FastA files are loaded,   Annotation: " +
                     annotation));
@@ -432,9 +458,26 @@ public class WindowPresenter {
         controller.getMinMatchesTxtField().setMax(spec);
 
         for(var HeaderSequence : data){
-            String key = HeaderSequence.header().substring(4).split(" ")[0];
+            String key = "";
+            if(HeaderSequence.header().startsWith("lcl|")) {
+                key = HeaderSequence.header().substring(4).split(" ")[0];
+            }
+            else{
+                key = HeaderSequence.header().split("\\|")[1];
+            }
             this.dataMap.put(key, HeaderSequence);
         }
+    }
+
+    private void removeParalogs(WindowController controller) throws IOException {
+        var lastIndex = input.get(0).lastIndexOf("/");
+        var path = input.get(0).substring(0, lastIndex);
+
+        var pipeline = new processExecutor(new String[]{"sh", "./src/model/removeParalogs.sh", path});
+        pipeline.run();
+
+        controller.getInfoLabel().setText("Paralogs are removed!");
+        importFiles(controller, new File(path+"/preProcessed/"));
     }
 
     public void summary(WindowController controller, int filter) throws IOException {
@@ -665,6 +708,8 @@ public class WindowPresenter {
                         toRemove.add(ch);
                     }
                 }
+            }
+            if(!toRemove.isEmpty()) {
                 for(var ch:toRemove){
                     children.remove(ch);
                 }
@@ -726,9 +771,9 @@ public class WindowPresenter {
             if (!line.startsWith("#")) {
                 String[] parts = line.split("\t");
                 if (parts[0].split(RegName).length > 1) {
-                    signalP.put(parts[0].split(RegName)[1].split("]")[0], parts[1]);
+                    signalP.put(parts[0].split(RegName)[1].split("]")[0], parts[1]+" ");
                 } else {
-                    signalP.put(parts[0], parts[1]);
+                    signalP.put(parts[0], parts[1]+" ");
                 }
             }
         }
@@ -785,7 +830,7 @@ public class WindowPresenter {
                 BufferedWriter br = new BufferedWriter(new FileWriter(selectedDir + "/epitopes.txt"));
 
                 for(var ch:children){
-                    br.write(ch.getValue() + "\n");
+                    br.write(">" + ch.getValue() + "\n");
                     for (var ch2 : ch.getChildren()) {
                         br.write(ch2.getValue() + "\n");
                     }
@@ -798,6 +843,109 @@ public class WindowPresenter {
         }
     }
 
+    private void excludeSpec(Stage stage, WindowController controller) throws IOException {
+        controller.getHeaderCheckBox().setSelected(false);
+        var FileChooser = new FileChooser();
+        FileChooser.setTitle("Open FastA file");
+        FileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("fasta file", "*.fasta", "*.fa"),
+                new FileChooser.ExtensionFilter("All files", "*.*"));
+        var selectedFile = FileChooser.showOpenDialog(stage);
+        if (selectedFile != null)
+        {
+            saveClustSignal(controller);
+
+            ArrayList<String> command = new ArrayList<>();
+            command.add("./src/model/mmseqs/bin/mmseqs");
+            command.add("easy-cluster");
+            command.add("Results/rep.fasta");
+            command.add(selectedFile.getAbsolutePath());
+            command.add("Results/exclude");
+            command.add("tmp");
+
+
+            var process = new processExecutor(command.toArray(new String[0]));
+            process.run();
+
+            BufferedReader reader = new BufferedReader(new FileReader("Results/exclude_cluster.tsv"));
+
+            Map<String, String> map = new HashMap<>();
+
+            String line;
+            while((line = reader.readLine()) != null) {
+                String[] parts = line.split("\t");
+                if(!map.containsKey(parts[0])) {
+                    map.put(parts[0], parts[1]);
+                }
+                else{
+                    map.remove(parts[0]);
+                }
+            }
+
+            var root = controller.getResultsTextArea().getRoot();
+            var children = root.getChildren();
+
+            for(var ch:children) {
+                boolean found = false;
+                for(var key:map.keySet()) {
+                    if(ch.getValue().contains(key) || ch.getValue().contains(map.get(key))){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    toRemove.add(ch);
+                }
+            }
+            remove(controller);
+            numberOfClusters(controller);
+        }
+    }
+
+    public void locPred(WindowController controller){
+        saveClustSignal(controller);
+
+        HashMap<String, String> prediction = new HashMap<>();
+        ArrayList<String> command = new ArrayList<>();
+
+        command.add("./src/model/topologyPred/venv/bin/python");
+        command.add("./src/model/topologyPred/locPred.py");
+        command.add("-m");
+        command.add("1");
+        command.add("-i");
+        command.add("Results/rep.fasta");
+
+        processExecutor processExecutor = new processExecutor(command.toArray(new String[0]));
+
+        try {
+            processExecutor.run();
+
+            BufferedReader reader = new BufferedReader(new FileReader("locPredResults.csv"));
+            String line;
+
+            while((line=reader.readLine()) != null) {
+                String[] parts = line.split("\t");
+                prediction.put(parts[0], parts[1]);
+            }
+
+            var children = controller.getResultsTextArea().getRoot().getChildren();
+
+            for(var ch: children) {
+                if(controller.getHeaderCheckBox().isSelected()) {
+                    ch.setValue(ch.getValue() + " [Localization: " +
+                            prediction.get(ch.getValue().split(" ")[0])+ "]");
+                }
+                else {
+                    var name = ch.getValue().split("\t")[1].split(" ")[0];
+                    ch.setValue(ch.getValue() + " [Localization: " + prediction.get(name) + "]");
+                }
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    
     public ArrayList<String> getInput() {
         return input;
     }
@@ -833,4 +981,5 @@ public class WindowPresenter {
     public void setDiamondDB(String diamondDB) {
         this.diamondDB = diamondDB;
     }
+
 }
