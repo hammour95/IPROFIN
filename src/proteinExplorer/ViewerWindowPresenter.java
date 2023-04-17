@@ -314,6 +314,24 @@ public class ViewerWindowPresenter {
 		camera.setNearClip(0.01);
 		camera.setTranslateZ(-100);
 
+		double meanX = 0;
+		double meanY = 0;
+		int numberAtoms = 0;
+		for (PdbPolymer polymer : complex.getPolymers()) {
+			for (PdbMonomer monomer : polymer.getMonomers()) {
+				for (PdbAtom atom : monomer.getAtoms()) {
+					numberAtoms++;
+					meanX += atom.getCoord().getX();
+					meanY += atom.getCoord().getY();
+				}
+			}
+		}
+		meanX = meanX/numberAtoms;
+		meanY = meanY/numberAtoms;
+
+		camera.setTranslateX(meanX);
+		camera.setTranslateY(meanY);
+		
 		// Mouse scroll zoom
 		controller.getCenterPane().setOnScroll(e -> {
 			camera.setTranslateZ(camera.getTranslateZ() + e.getDeltaY());
