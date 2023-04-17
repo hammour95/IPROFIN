@@ -388,7 +388,9 @@ public class WindowPresenter {
         aboutAlert.setTitle("About");
         aboutAlert.setHeaderText(null);
         aboutAlert.setContentText("IProFin by: Majd Hammour \n" +
-                "Identical Proteins Finder\nUser interface depends on the tool MMSeqs2");
+                "Identical Proteins Finder\n" +
+                "a powerful pipeline for for predicting conserved outer membrane protein (OMPs)" +
+                " targets from a set of input sequences.");
         aboutAlert.showAndWait();
     }
 
