@@ -1,5 +1,8 @@
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TextField;
 
 import java.util.ArrayList;
 
@@ -112,6 +115,24 @@ public class addOptions {
             controller.getTreadsDTextField().setDisable(!controller.getThreadsDCheckBox().isSelected());
         });
 
-
+        // Restrict the input of textFields to integers only
+        integerOnly(controller.getThreadsTextField());
+        integerOnly(controller.getTreadsDTextField());
+        integerOnly(controller.getMinAlnLenTextField());
+        integerOnly(controller.getKmerPerSeqTextField());
+        integerOnly(controller.getGabExtendTextField());
+        integerOnly(controller.getGabOpenTextField());
+    }
+    private void integerOnly(TextField field) {
+        field.textProperty().addListener(
+                new ChangeListener<String>() {
+                    @Override
+                    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                        if(!newValue.matches("\\d*")) {
+                            field.setText(newValue.replaceAll("[^\\d]", ""));
+                        }
+                    }
+                }
+        );
     }
 }
