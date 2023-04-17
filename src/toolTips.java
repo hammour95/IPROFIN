@@ -26,6 +26,14 @@ public class toolTips {
         Tooltip.install(controller.getMinAlnLenTextField(), new Tooltip(
                 "Minimum alignment length (range 0-INT_MAX)"));
 
+        Tooltip.install(controller.getAutomaticButton(), new Tooltip("Run the pipeline automatically"));
+
+        Tooltip.install(controller.getSignalPButton(), new Tooltip("Run SignalP6 on all clusters"));
+
+        Tooltip.install(controller.getMsaButton(), new Tooltip(
+                "Run MSA Viewer to visualize MSA of selected cluster"));
+
+        Tooltip.install(controller.getProteinViewerButton(), new Tooltip("Run the ProteomExplorer"));
 
     }
 }
