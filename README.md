@@ -6,7 +6,7 @@
 
 ## **Description**:
 
-IPROFIN is a powerful pipeline for for predicting conserved outer membrane protein (OMPs) targets from a set of input sequences.
+IPROFIN is a powerful pipeline for predicting conserved outer membrane protein (OMPs) targets from a set of input sequences.
 The tool combines various tools and machine learning methods, including data preprocessing, clustering of homologous proteins, pre-filtering for performance improvement, localization prediction for identifying OMPs, and multiple sequence alignment to identify conserved regions.
 
 The tool is designed to be user-friendly and efficient, with a streamlined pipeline that reduces processing time and increases accuracy. It also includes optional tools for extra analysis and visualization, making it a versatile tool for a range of use cases.
