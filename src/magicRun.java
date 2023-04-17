@@ -5,17 +5,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * This class provides functions to
+ *      find the optimal Parameters (ID, COV) for the clustering
+ *      Prefilter the results
+ *      search for conserved regions in the MSA
+ */
 public class magicRun {
 
     WindowPresenter presenter;
     WindowController controller;
 
-
+    /**
+     * Constructor
+     * @param presenter Windows Presenter
+     * @param controller Windows Controller
+     */
     public magicRun(WindowPresenter presenter, WindowController controller) {
         this.presenter = presenter;
         this.controller = controller;
     }
 
+    /**
+     * Run the clustering to test ID and COV
+     * @param id ID: Identity
+     * @param cov COV: Coverage
+     * @return Number of clusters cover all input data
+     */
     public int testParameter(double id, double cov) throws IOException {
         var count = 0;
         var input = presenter.getInput();
@@ -40,6 +56,11 @@ public class magicRun {
         return count;
     }
 
+    /**
+     * Grid-Search implementation to find optimal ID and COV
+     *
+     * @param accuracy Deep of the search
+     */
     public void findOptimalParameters(double accuracy) throws IOException {
         double id = 0.5;
         double cov = 0.5;
@@ -78,12 +99,19 @@ public class magicRun {
         }
     }
 
+    /**
+     * Prefiltering step where clusters will be discarded
+     * if the sequences inside do NOT share ate least
+     * one kmer of the given length
+     * @param kmerSize Length of the kmer
+     * @param tolerance Tolerance
+     */
     public void kmerSearch(int kmerSize, int tolerance) {
 
         var root = controller.getResultsTextArea().getRoot();
         var children = root.getChildren();
 
-        ArrayList<TreeItem<String>> toRemove = new ArrayList<>(); // The clusters that have no kmers together
+        ArrayList<TreeItem<String>> toRemove = new ArrayList<>(); // The clusters that share no kmers
         HashMap<String, Integer> hash = new HashMap<>();
 
         for(var cluster: children) {
@@ -128,7 +156,10 @@ public class magicRun {
         presenter.numberOfClusters(controller);
     }
 
-
+    /**
+     * Search the MSA for conserved reagions
+     * @param tolerance Tolerance
+     */
     public void checkMSA(int tolerance) throws IOException {
         var root = controller.getResultsTextArea().getRoot();
         var children = root.getChildren();
@@ -228,20 +259,3 @@ public class magicRun {
         controller.getRemoveButton().setDisable(true);
     }
 }
-
-
-// changing the other parameters manually
-// ID= 0.4 cov= 0.7 count= 1648
-// ID= 0.4 cov= 0.35 count= 1654
-// ID= 0.4 cov= 0.35 count= 1652
-// ID= 0.4 cov= 0.35 count= 1656
-// ID= 0.4 cov= 0.65 count= 1653
-// ID= 0.4 cov= 0.35 count= 1652
-// ID= 0.4 cov= 0.3 count= 1806    (kmer per seq 100)
-// ID= 0.4 cov= 0.4 count= 1436    (kmer per seq 10)
-
-
-
-// acc = 0.05 ID= 0.45 cov= 0.2 count= 371  linClust
-// acc = 0.05 ID= 0.4 cov= 0.35 count= 582  MMseqs
-// acc = 0.05 ID= 0.4 cov= 0.25 count= 551  DIAMOND
