@@ -66,7 +66,7 @@ public class PdbParser {
             String name = "";
             String letter = "";
             int radius = 0;
-            Color color = null;
+            Color color = Color.BLACK;
             int id = 0;
             int monoId = 0;
             String role = "";
