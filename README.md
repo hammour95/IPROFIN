@@ -20,7 +20,10 @@ Whether you're a bioinformatics researcher, a scientist, or a student, IPROFIN i
 
 Download The trained SVM model for the localization prediction form:  
 https://1drv.ms/f/s!AmL9JchooXjA6BWxH5hLz4400hGX?e=hr0fBZ 
-copy it to the main folder
+copy it to the main folder. 
+Next, download the model for SignalP6 from the link: https://mega.nz/file/uZ0DVQ7b#oDDerv_8mJmj1ypC_CX8OaWBxfYe4dXDvHGVgOiwCks
+and copy it to "./IPROFIN/src/model/signalP/venv/lib/python3.9/site-packages/signalp/model_weights/".
+
 
 ## Used Tools
 
